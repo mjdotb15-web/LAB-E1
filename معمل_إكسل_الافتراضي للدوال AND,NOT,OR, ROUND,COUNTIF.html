@@ -1,0 +1,1139 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>معمل إكسل الافتراضي</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Readex+Pro:wght@500;600;700&display=swap">
+<script>document.documentElement.dir='rtl';document.documentElement.lang='ar';</script>
+<style>
+/* Layout: a workbench. Station tabs on top; concept cards; a live mini-sheet beside its task list; tips and quiz underneath. */
+:root{
+  --paper:#F2F5F3; --surface:#FFFFFF; --sunk:#E8EEEA; --ink:#13221B; --muted:#55665E; --line:#D2DCD6; --grid:#E0E7E2;
+  --accent:#0E6B46; --accent-soft:#DFF0E7; --on-accent:#FFFFFF;
+  --signal:#A9650A; --signal-soft:#FBEEDA;
+  --t:#14704A; --t-soft:#DEF2E6; --f:#B03434; --f-soft:#FAE3E3;
+  --hit:#FFE49A; --hit-ink:#4A3600;
+  --code-bg:#14241D; --code-ink:#D9EEE2; --code-k:#7FD8A9; --code-s:#F4C77A; --code-o:#9FB6AA;
+  --font-display:"Readex Pro","IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --font-body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --font-mono:"IBM Plex Mono","IBM Plex Sans Arabic",ui-monospace,Consolas,monospace;
+  --r:10px;
+  --tip-bg:#FFFFFF; --tip-line:#9AA5A0; --link:#1F5FBF;
+  --dlg:#F3F4F3; --dlg-h:#FFFFFF;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0E1512; --surface:#151F1A; --sunk:#1B2721; --ink:#E3EEE8; --muted:#97A9A0; --line:#2B3A33; --grid:#24322B;
+  --accent:#3CC38A; --accent-soft:#183427; --on-accent:#07130D;
+  --signal:#F0A94A; --signal-soft:#3A2A12;
+  --t:#66D9A1; --t-soft:#173726; --f:#F08C8C; --f-soft:#3D1D1D;
+  --hit:#5B4612; --hit-ink:#FFE7A6;
+  --code-bg:#08100C; --code-ink:#D2E8DC; --code-k:#6FD3A0; --code-s:#F2C274; --code-o:#8EA69A;
+  --tip-bg:#222D28; --tip-line:#4D5D55; --link:#86B6FF;
+  --dlg:#1C2621; --dlg-h:#24302A;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0E1512; --surface:#151F1A; --sunk:#1B2721; --ink:#E3EEE8; --muted:#97A9A0; --line:#2B3A33; --grid:#24322B;
+  --accent:#3CC38A; --accent-soft:#183427; --on-accent:#07130D;
+  --signal:#F0A94A; --signal-soft:#3A2A12;
+  --t:#66D9A1; --t-soft:#173726; --f:#F08C8C; --f-soft:#3D1D1D;
+  --hit:#5B4612; --hit-ink:#FFE7A6;
+  --code-bg:#08100C; --code-ink:#D2E8DC; --code-k:#6FD3A0; --code-s:#F2C274; --code-o:#8EA69A;
+  --tip-bg:#222D28; --tip-line:#4D5D55; --link:#86B6FF;
+  --dlg:#1C2621; --dlg-h:#24302A;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;line-height:1.35;text-wrap:balance;margin:0}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px}
+b{font-weight:700}
+
+/* header */
+.top{background:var(--surface);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px 28px;flex-wrap:wrap;padding-block:18px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.brand svg{flex:none}
+.brand h1{font-size:1.55rem}
+.brand p{color:var(--muted);font-size:.95rem}
+.meter{display:flex;flex-direction:column;gap:6px;min-width:220px;flex:0 1 300px}
+.meter .lbl{display:flex;justify-content:space-between;font-size:.9rem;color:var(--muted)}
+.meter .lbl b{color:var(--ink);font-variant-numeric:tabular-nums}
+.bar{height:8px;border-radius:99px;background:var(--sunk);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);border-radius:inherit;transition:width .4s}
+
+/* station nav */
+.stations{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.stations .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin}
+.tab{flex:none;border:0;background:none;padding:10px 14px 9px;border-bottom:3px solid transparent;display:flex;align-items:center;gap:9px;color:var(--muted)}
+.tab .code{font-family:var(--font-mono);font-weight:600;font-size:.88rem;letter-spacing:.02em;padding:1px 7px;border-radius:5px;background:var(--sunk);color:var(--ink);direction:ltr}
+.tab .nm{font-size:.95rem}
+.tab .ok{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center}
+.tab .ok.on{background:var(--accent);border-color:var(--accent)}
+.tab .ok.on::after{content:"";width:7px;height:4px;border:2px solid var(--on-accent);border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+.tab[aria-selected="true"] .code{background:var(--accent);color:var(--on-accent)}
+
+main{padding-block:26px 40px;display:flex;flex-direction:column;gap:22px}
+.st-head{display:flex;flex-direction:column;gap:4px}
+.eyebrow{font-size:.8rem;font-weight:600;letter-spacing:.04em;color:var(--accent)}
+.st-head h2{font-size:1.75rem}
+.st-head p{color:var(--muted);max-width:70ch}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;min-width:0}
+.panel h3{font-size:1.15rem;margin-bottom:8px}
+.prose{display:flex;flex-direction:column;gap:12px}
+.prose p,.prose li{max-width:68ch}
+.grid2{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}
+@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+
+.T,.F{font-family:var(--font-mono);font-weight:600;font-size:.86em;direction:ltr;unicode-bidi:isolate}
+.T{color:var(--t)} .F{color:var(--f)}
+.analogy{background:var(--sunk);border-radius:8px;padding:10px 14px}
+.fx{font-family:var(--font-mono);font-size:.9em;background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:1px 7px;white-space:nowrap;direction:ltr;unicode-bidi:isolate;display:inline-block}
+.syntax{background:var(--code-bg);color:var(--code-ink);border-radius:8px;padding:14px 18px;font-family:var(--font-mono);font-size:1.25rem;direction:ltr;text-align:left;overflow-x:auto;white-space:nowrap}
+.syntax .k{color:var(--code-k);font-weight:600} .syntax .s{color:var(--code-s)} .syntax .o{color:var(--code-o)}
+.args{display:flex;flex-direction:column;gap:0;margin:14px 0 0;padding:0;list-style:none}
+.args li{display:grid;grid-template-columns:minmax(120px,auto) 1fr;gap:4px 14px;padding:11px 0;border-top:1px solid var(--line)}
+.args li:first-child{border-top:0}
+.args .an{font-family:var(--font-mono);font-weight:600;direction:ltr;text-align:right;unicode-bidi:isolate}
+.args .an small{display:block;font-family:var(--font-body);font-weight:600;font-size:.75rem;margin-top:2px}
+.req{color:var(--signal)} .opt{color:var(--muted)}
+.args ul{margin:6px 0 0;padding-inline-start:18px}
+@media (max-width:520px){.args li{grid-template-columns:1fr}.args .an{text-align:right}}
+
+table.tt{border-collapse:collapse;width:100%;font-size:.95rem}
+.tt th,.tt td{border-bottom:1px solid var(--line);padding:7px 10px;text-align:center}
+.tt th{font-weight:600;color:var(--muted);font-size:.85rem}
+.chip{display:inline-block;font-family:var(--font-mono);font-weight:600;font-size:.8rem;padding:1px 9px;border-radius:99px;direction:ltr}
+.chip.t{background:var(--t-soft);color:var(--t)} .chip.f{background:var(--f-soft);color:var(--f)}
+.tblwrap{overflow-x:auto}
+
+.try{border:1px solid var(--accent);background:none;color:var(--accent);border-radius:6px;font-size:.82rem;font-weight:600;padding:1px 10px;margin-inline-start:6px;white-space:nowrap}
+.try:hover{background:var(--accent-soft)}
+.note{border:1px dashed var(--signal);background:var(--signal-soft);border-radius:8px;padding:10px 14px}
+.note b{color:var(--signal)}
+
+/* widgets */
+.widget{display:grid;grid-template-columns:minmax(260px,.8fr) 1.2fr;gap:22px}
+@media (max-width:860px){.widget{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:600;font-size:.92rem}
+.inp{font:inherit;font-family:var(--font-mono);font-size:1.05rem;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);width:100%;min-width:0}
+select.inp{font-family:var(--font-body)}
+.inp:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.pre{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:2px 12px;font-family:var(--font-mono);font-size:.88rem;direction:ltr}
+.pre:hover{border-color:var(--accent);color:var(--accent)}
+.slider{width:100%;accent-color:var(--accent)}
+.ticks{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:.78rem;color:var(--muted);direction:ltr;padding:0 4px}
+.wctl{display:flex;flex-direction:column;gap:16px}
+.digits{display:flex;gap:4px;direction:ltr;justify-content:center;flex-wrap:wrap;padding:6px 0}
+.dg{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:44px}
+.dg .d{font-family:var(--font-mono);font-size:1.8rem;font-weight:600;width:44px;height:56px;display:grid;place-items:center;border-radius:8px;border:1.5px solid var(--line);background:var(--paper)}
+.dg .pl{font-size:.7rem;color:var(--muted);white-space:nowrap}
+.dg.keep .d{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.dg.decide .d{background:var(--signal-soft);border:2.5px solid var(--signal);color:var(--signal)}
+.dg.drop .d{opacity:.38;text-decoration:line-through}
+.dg.dot{min-width:14px}.dg.dot .d{width:14px;border:0;background:none}
+.wout{display:flex;flex-direction:column;gap:14px}
+.resline{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:1.05rem}
+.big{font-family:var(--font-mono);font-weight:600;font-size:2rem;color:var(--accent);direction:ltr;unicode-bidi:isolate}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-inline-end:6px;vertical-align:-1px;border:1.5px solid var(--line)}
+.legend .lk::before{background:var(--accent-soft);border-color:var(--accent)}
+.legend .ld::before{background:var(--signal-soft);border-color:var(--signal)}
+.legend .lx::before{opacity:.4}
+.names{display:flex;flex-wrap:wrap;gap:6px}
+.names span{background:var(--hit);color:var(--hit-ink);border-radius:6px;padding:0 9px;font-size:.9rem}
+
+/* bench */
+.bench{display:grid;grid-template-columns:330px minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:960px){.bench{grid-template-columns:1fr}}
+.tasks{display:flex;flex-direction:column;gap:12px}
+.tlist{display:flex;flex-direction:column;gap:6px}
+.titem{display:flex;align-items:center;gap:10px;text-align:right;width:100%;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 12px}
+.titem:hover{border-color:var(--accent)}
+.titem[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.titem .n{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-family:var(--font-mono);font-size:.82rem;font-weight:600;background:var(--sunk)}
+.titem.done .n{background:var(--accent);color:var(--on-accent)}
+.titem .tt2{flex:1;min-width:0;font-weight:600;font-size:.95rem;line-height:1.5}
+.titem .tag{font-size:.72rem;font-weight:600;color:var(--signal);border:1px solid var(--signal);border-radius:99px;padding:0 7px}
+.titem.free .n{background:none;border:1.5px dashed var(--muted)}
+.tdetail{display:flex;flex-direction:column;gap:10px}
+.tdetail .goal{font-size:.98rem}
+.tdetail .where{font-size:.88rem;color:var(--muted)}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:4px 12px;font-size:.88rem;font-weight:600}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.hints{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.hints li{background:var(--signal-soft);border-radius:7px;padding:6px 12px;font-size:.92rem}
+.sol{background:var(--sunk);border-radius:7px;padding:8px 12px;font-size:.92rem}
+
+.sheetbox{display:flex;flex-direction:column;gap:10px;min-width:0}
+.fbar{display:flex;align-items:stretch;gap:0;border:1px solid var(--line);border-radius:9px;background:var(--surface);overflow:hidden;direction:ltr}
+.namebox{flex:none;min-width:64px;display:grid;place-items:center;padding:0 10px;font-family:var(--font-mono);font-weight:600;font-size:.92rem;background:var(--sunk);border-right:1px solid var(--line)}
+.fxl{flex:none;display:grid;place-items:center;padding:0 10px;font-family:Georgia,serif;font-style:italic;font-weight:700;color:var(--accent);border-right:1px solid var(--line)}
+#formula{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font-family:var(--font-mono);font-size:1.08rem;padding:11px 12px;direction:ltr;text-align:left}
+#formula:focus{outline:none}
+.fbar:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.run{flex:none;border:0;background:var(--accent);color:var(--on-accent);font-weight:700;padding:0 18px;font-family:var(--font-body)}
+.run:hover{filter:brightness(1.08)}
+.clr{flex:none;border:0;border-left:1px solid var(--line);background:var(--surface);color:var(--muted);padding:0 12px;font-size:1.1rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px;direction:ltr;justify-content:flex-start}
+.chips button{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:1px 9px;font-family:var(--font-mono);font-size:.85rem}
+.chips button.fn{color:var(--accent);font-weight:600}
+.chips button:hover{border-color:var(--accent)}
+.chips{order:-1}
+.fwrap{position:relative}
+.screentip{position:absolute;top:calc(100% + 4px);left:0;z-index:4;max-width:min(460px,100%);background:var(--tip-bg);color:var(--ink);border:1px solid var(--tip-line);border-radius:3px;box-shadow:0 3px 10px rgba(0,0,0,.16);padding:4px 10px 5px;display:flex;flex-direction:column;gap:3px;text-align:left}
+.screentip .sig{font-family:"Segoe UI",Calibri,Arial,sans-serif;font-size:.95rem;white-space:nowrap;overflow-x:auto;direction:ltr}
+.screentip .sig b{font-weight:700}
+.screentip .fnm{color:var(--link);text-decoration:underline;text-underline-offset:2px}
+.screentip .ar{font-size:.82rem;color:var(--muted);border-top:1px solid var(--tip-line);padding-top:3px;text-align:right;line-height:1.6}
+.screentip[hidden]{display:none!important}
+.sheetwrap{overflow-x:auto;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
+table.sheet{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums;user-select:none;-webkit-user-select:none;touch-action:pan-y}
+.sheet th{background:var(--sunk);color:var(--muted);font-family:var(--font-mono);font-weight:500;font-size:.75rem;padding:3px 6px;border:1px solid var(--grid)}
+.sheet th.rn{width:34px}
+.sheet td{border:1px solid var(--grid);padding:6px 10px;text-align:center;white-space:nowrap;cursor:cell;position:relative}
+.sheet tr.hdr td{background:var(--accent);color:var(--on-accent);font-weight:600;font-size:.88rem;border-color:var(--accent)}
+.sheet td.num{font-family:var(--font-mono);font-size:.92rem}
+.sheet td.tgt{background:var(--accent-soft);outline:2px dashed var(--accent);outline-offset:-3px}
+.sheet td.tgt.first{outline-style:solid}
+.sheet td.vT{color:var(--t);font-family:var(--font-mono);font-weight:600;font-size:.86rem}
+.sheet td.vF{color:var(--f);font-family:var(--font-mono);font-weight:600;font-size:.86rem}
+.sheet td.vE{color:var(--f);font-family:var(--font-mono);font-size:.82rem}
+.sheet td.wrong{background:var(--f-soft);box-shadow:inset 0 0 0 2px var(--f)}
+.sheet td.right{box-shadow:inset 0 0 0 2px var(--t)}
+.sheet td.hit{background:var(--hit);color:var(--hit-ink)}
+.sheet td.pick{background:color-mix(in srgb,var(--accent) 22%,transparent);box-shadow:inset 0 0 0 2px var(--accent)}
+.sheet td.lbl{text-align:right;color:var(--muted);font-size:.88rem}
+.sheethelp{font-size:.82rem;color:var(--muted)}
+.msg{border-radius:9px;padding:11px 15px;font-size:.96rem;border:1px solid var(--line);background:var(--surface)}
+.msg.ok{border-color:var(--t);background:var(--t-soft)}
+.msg.warn{border-color:var(--signal);background:var(--signal-soft)}
+.msg.err{border-color:var(--f);background:var(--f-soft)}
+.msg .rv{font-family:var(--font-mono);font-weight:600;direction:ltr;unicode-bidi:isolate}
+.msg[hidden]{display:none!important}
+
+/* function arguments dialog (Excel style) */
+.fxl{border:0;background:none;cursor:pointer;font-size:1rem}
+.fxl:hover{background:var(--accent-soft)}
+.dlg{position:fixed;z-index:30;top:max(70px,calc(env(safe-area-inset-top,0px) + 56px));left:50%;transform:translateX(-50%);width:min(640px,calc(100vw - 32px));max-height:calc(100vh - 90px);overflow:auto;background:var(--dlg);color:var(--ink);border:1px solid var(--tip-line);border-radius:8px;box-shadow:0 18px 50px rgba(0,0,0,.3);font-size:.93rem}
+.dlg[hidden]{display:none!important}
+.dlg-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 16px 6px 6px;background:var(--dlg-h);border-bottom:1px solid var(--line);cursor:move;user-select:none;-webkit-user-select:none;touch-action:none;position:sticky;top:0;z-index:1}
+.dlg-h span{font-weight:600}
+.dlg-hb{display:flex;gap:2px}
+.dlg-hb button{border:0;background:none;width:34px;height:30px;border-radius:5px;font-size:1rem}
+.dlg-hb button:hover{background:var(--sunk)}
+.dlg-b{padding:12px 16px 14px;display:flex;flex-direction:column;gap:10px}
+.dlg-box{border:1px solid var(--line);border-radius:4px;padding:4px 12px 10px;margin:0;background:var(--dlg-h);min-width:0}
+.dlg-box legend{font-family:"Segoe UI",Arial,sans-serif;font-weight:600;padding:0 6px}
+.argrows{display:flex;flex-direction:column;gap:6px;max-height:230px;overflow-y:auto;padding:2px}
+.arow{display:grid;grid-template-columns:120px minmax(0,1fr) 14px minmax(90px,32%);gap:8px;align-items:center}
+.aname{font-family:"Segoe UI",Arial,sans-serif;direction:ltr;text-align:right;unicode-bidi:isolate}
+.aname.req{font-weight:700;color:var(--ink)}
+.ainp{display:flex;direction:ltr;border:1px solid var(--tip-line);border-radius:3px;background:var(--surface);min-width:0}
+.ainp:focus-within{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.ainp input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font-family:var(--font-mono);font-size:.95rem;padding:4px 8px;direction:ltr;text-align:left}
+.ainp input:focus{outline:none}
+.ainp .col{flex:none;border:0;border-right:1px solid var(--line);background:var(--sunk);width:30px;display:grid;place-items:center;color:var(--ink)}
+.ainp .col:hover{background:var(--accent-soft)}
+.eq{text-align:center;color:var(--muted)}
+.aval{font-family:var(--font-mono);font-size:.86rem;direction:ltr;unicode-bidi:isolate;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aval.ph{font-family:var(--font-body);color:var(--muted);direction:rtl}
+.dlg-res{display:flex;justify-content:flex-end;gap:8px;min-height:1.5em;padding-inline-end:4px}
+.dlg-res .v,.dlg-out .v{font-family:var(--font-mono);direction:ltr;unicode-bidi:isolate;font-weight:600}
+.dlg-ad{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;min-height:1.6em}
+.dlg-ad b{font-family:"Segoe UI",Arial,sans-serif;direction:ltr;unicode-bidi:isolate}
+.dlg-ad span{flex:1;min-width:200px}
+.dlg-tip{font-size:.84rem;background:var(--signal-soft);border-radius:5px;padding:4px 10px}
+.dlg-tip[hidden]{display:none!important}
+.dlg hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
+.dlg-f{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.dlg-f a{color:var(--link);text-decoration:underline}
+.dbtns{display:flex;gap:8px}
+.dbtn{min-width:96px;border:1px solid var(--tip-line);background:var(--surface);border-radius:4px;padding:4px 14px}
+.dbtn.primary{border-color:var(--link);box-shadow:inset 0 0 0 1px var(--link)}
+.dbtn:hover{background:var(--sunk)}
+.fnlist{display:flex;flex-direction:column;border:1px solid var(--tip-line);background:var(--surface);border-radius:3px;max-height:190px;overflow-y:auto}
+.fnit{border:0;background:none;padding:4px 12px;font-family:"Segoe UI",Arial,sans-serif;direction:ltr;text-align:left}
+.fnit:hover{background:var(--sunk)}
+.fnit[aria-selected="true"]{background:var(--accent);color:var(--on-accent)}
+.fsyn{font-family:"Segoe UI",Arial,sans-serif;font-weight:700;direction:ltr;text-align:right;unicode-bidi:isolate}
+.dlg.collapsed{width:min(520px,calc(100vw - 32px))}
+.dlg.collapsed .dlg-b{padding:8px 10px}
+.dlg.collapsed .dlg-b>*:not(.dlg-box){display:none}
+.dlg.collapsed .dlg-box{border:0;padding:0;background:none}
+.dlg.collapsed legend,.dlg.collapsed .arow:not(.cur),.dlg.collapsed .aname,.dlg.collapsed .eq,.dlg.collapsed .aval{display:none}
+.dlg.collapsed .arow.cur{grid-template-columns:1fr}
+.dlg.collapsed .col svg{transform:rotate(180deg)}
+@media (max-width:560px){.arow{grid-template-columns:minmax(0,1fr) 12px minmax(70px,34%)}.arow .aname{grid-column:1/-1}}
+
+/* lower */
+.tips{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:0}
+.tips li{padding:10px 0 10px 0;border-top:1px solid var(--line);display:grid;grid-template-columns:22px 1fr;gap:10px}
+.tips li:first-child{border-top:0}
+.tips li::before{content:"";width:10px;height:10px;margin-top:.6em;border-radius:2px;background:var(--signal);transform:rotate(45deg)}
+.quiz{display:flex;flex-direction:column;gap:16px}
+.q{display:flex;flex-direction:column;gap:8px}
+.q .qt{font-weight:600}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;align-items:center;gap:10px;text-align:right;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:7px 12px}
+.opt:hover{border-color:var(--accent)}
+.opt .lt{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.78rem;font-weight:700;background:var(--sunk)}
+.opt.good{border-color:var(--t);background:var(--t-soft)} .opt.good .lt{background:var(--t);color:var(--surface)}
+.opt.bad{border-color:var(--f);background:var(--f-soft)} .opt.bad .lt{background:var(--f);color:var(--surface)}
+.why{font-size:.92rem;border-radius:7px;padding:7px 12px;background:var(--sunk)}
+.steps{margin:0;padding:0;list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:10px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start}
+.steps li::before{content:counter(s);width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-weight:700;font-size:.85rem;font-family:var(--font-mono)}
+footer{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}
+footer .wrap{padding-block:18px;display:flex;flex-direction:column;gap:4px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div dir="rtl" lang="ar">
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><rect x="1" y="1" width="42" height="42" rx="9" fill="var(--accent)"/><path d="M11 15h22M11 22h22M11 29h22M18 10v24M26 10v24" stroke="var(--on-accent)" stroke-width="1.6" opacity=".55"/><rect x="18" y="15" width="8" height="7" fill="var(--on-accent)"/></svg>
+      <div>
+        <h1>معمل إكسل الافتراضي</h1>
+        <p>الدوال AND و OR و NOT و ROUND و COUNTIF: اقرأ، جرّب، وتحقّق بنفسك</p>
+      </div>
+    </div>
+    <div class="meter" aria-live="polite">
+      <div class="lbl"><span>إنجازك في المعمل</span><span><b id="pDone">0</b> من <b id="pAll">0</b></span></div>
+      <div class="bar"><i id="pBar"></i></div>
+    </div>
+  </div>
+</header>
+<nav class="stations" aria-label="محطات المعمل"><div class="wrap" id="tabs" role="tablist"></div></nav>
+<main class="wrap" id="main"></main>
+<div class="dlg" id="dlg" role="dialog" aria-labelledby="dlgTitle" hidden><div class="dlg-h" id="dlgHead"><span id="dlgTitle">وسيطات الدالة</span><div class="dlg-hb"><button id="dlgHelp" title="تعليمات حول هذه الدالة" aria-label="تعليمات">؟</button><button id="dlgX" title="إغلاق" aria-label="إغلاق">✕</button></div></div><div class="dlg-b" id="dlgBody"></div></div>
+<footer><div class="wrap">
+  <p>يقبل المعمل الفاصلة <span class="fx">,</span> أو الفاصلة المنقوطة <span class="fx">;</span> بين الوسيطات، ويقبل الأرقام العربية، ويحفظ تقدّمك في هذا المتصفح.</p>
+  <p>الدوال التي يفهمها المعمل: AND و OR و NOT و ROUND و COUNTIF و IF و SUM و AVERAGE.</p>
+</div></footer>
+</div>
+
+<script>
+/* ===================== helpers ===================== */
+const $=(s,el=document)=>el.querySelector(s);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const colL=i=>String.fromCharCode(65+i);
+const colIndex=L=>{L=L.toUpperCase();let n=0;for(const ch of L)n=n*26+(ch.charCodeAt(0)-64);return n-1;};
+const fx=(s)=>`<code class="fx" dir="ltr">${esc(s).replace(/&quot;([^&]*?)&quot;/g,(m,a)=>/[\u0600-\u06FF]/.test(a)?`<bdi>&quot;${a}&quot;</bdi>`:m)}</code>`;
+const tryBtn=(f)=>`<button class="try" data-try="${esc(f)}">جرّبها</button>`;
+
+/* ===================== formula engine ===================== */
+class FErr{constructor(code,msg){this.code=code;this.msg=msg;}}
+const E=(c,m)=>new FErr(c,m);
+const isErr=v=>v instanceof FErr;
+
+function normalize(s){
+  return s.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+    .replace(/،/g,',').replace(/؛/g,';').replace(/٫/g,'.').replace(/٪/g,'%')
+    .replace(/[“”„″«»]/g,'"').replace(/≥/g,'>=').replace(/≤/g,'<=').replace(/≠/g,'<>').replace(/×/g,'*').replace(/÷/g,'/');
+}
+function tokenize(src){
+  const t=[];let i=0;
+  while(i<src.length){
+    const c=src[i];
+    if(/\s/.test(c)){i++;continue;}
+    if(c==='"'){let j=i+1,v='';
+      for(;;){if(j>=src.length)throw E('#PARSE','لم تُغلق علامة التنصيص. كل نص يحتاج علامة " في بدايته وأخرى في نهايته.');
+        if(src[j]==='"'){if(src[j+1]==='"'){v+='"';j+=2;continue;}break;} v+=src[j++];}
+      t.push({k:'str',v});i=j+1;continue;}
+    const rest=src.slice(i);let m;
+    if((m=/^(\d+(\.\d+)?|\.\d+)/.exec(rest))){t.push({k:'num',v:parseFloat(m[0])});i+=m[0].length;continue;}
+    if((m=/^(\$?)([A-Za-z]{1,2})(\$?)(\d+)(?![A-Za-z0-9_(])/.exec(rest))){t.push({k:'ref',absC:!!m[1],col:colIndex(m[2]),absR:!!m[3],row:+m[4]});i+=m[0].length;continue;}
+    if((m=/^[A-Za-z_][A-Za-z0-9_.]*/.exec(rest))){t.push({k:'id',v:m[0].toUpperCase()});i+=m[0].length;continue;}
+    if((m=/^(<>|<=|>=|[=<>+\-*\/^&%(),;:])/.exec(rest))){t.push({k:'op',v:m[0]===';'?',':m[0]});i+=m[0].length;continue;}
+    if(/[\u0600-\u06FF]/.test(c)){const w=/^[\u0600-\u06FF\u0750-\u077F]+/.exec(rest)[0];
+      throw E('#NAME?',`كتبت النص «${w}» بدون علامتي تنصيص. اكتبه هكذا: "${w}"`);}
+    throw E('#PARSE',`الرمز «${c}» غير مفهوم في هذا الموضع.`);
+  }
+  return t;
+}
+const CMP=['=','<>','<','>','<=','>='];
+function parse(src){
+  src=normalize(String(src).trim());
+  if(!src)throw E('#PARSE','اكتب صيغة تبدأ بعلامة = ثم اضغط «تنفيذ».');
+  if(src[0]!=='=')throw E('#PARSE','كل صيغة في إكسل تبدأ بعلامة = . أضفها في بداية الصيغة.');
+  const toks=tokenize(src.slice(1));let p=0;
+  const peek=()=>toks[p],next=()=>toks[p++],isOp=v=>toks[p]&&toks[p].k==='op'&&toks[p].v===v;
+  function comparison(){let l=concat();while(peek()&&peek().k==='op'&&CMP.includes(peek().v)){const op=next().v;l={t:'bin',op,l,r:concat()};}return l;}
+  function concat(){let l=additive();while(isOp('&')){p++;l={t:'bin',op:'&',l,r:additive()};}return l;}
+  function additive(){let l=term();while(isOp('+')||isOp('-')){const op=next().v;l={t:'bin',op,l,r:term()};}return l;}
+  function term(){let l=unary();while(isOp('*')||isOp('/')){const op=next().v;l={t:'bin',op,l,r:unary()};}return l;}
+  function unary(){if(isOp('-')){p++;return{t:'neg',e:unary()};}if(isOp('+')){p++;return unary();}return power();}
+  function power(){let l=postfix();while(isOp('^')){p++;l={t:'bin',op:'^',l,r:postfix()};}return l;}
+  function postfix(){let e=primary();while(isOp('%')){p++;e={t:'pct',e};}return e;}
+  function primary(){
+    const tk=next();
+    if(!tk)throw E('#PARSE','الصيغة ناقصة؛ يبدو أن جزءاً مفقود في نهايتها.');
+    if(tk.k==='num')return{t:'num',v:tk.v};
+    if(tk.k==='str')return{t:'str',v:tk.v};
+    if(tk.k==='ref'){if(isOp(':')){p++;const b=next();if(!b||b.k!=='ref')throw E('#PARSE','بعد النقطتين : اكتب آخر خلية في النطاق، مثل B2:B9');return{t:'range',a:tk,b};}return{t:'ref',r:tk};}
+    if(tk.k==='id'){
+      if(isOp('(')){p++;const args=[];
+        if(isOp(')')){p++;return{t:'fn',name:tk.v,args};}
+        for(;;){
+          if(isOp(',')||isOp(')'))args.push({t:'empty'});else args.push(comparison());
+          if(isOp(',')){p++;continue;}
+          if(isOp(')')){p++;break;}
+          if(!peek())throw E('#PARSE',`ينقص قوس الإغلاق ) في نهاية الدالة ${tk.v}.`);
+          throw E('#PARSE',`يوجد شيء غير متوقع داخل ${tk.v}. افصل بين الوسيطات بفاصلة ,`);
+        }
+        return{t:'fn',name:tk.v,args};}
+      if(tk.v==='TRUE')return{t:'bool',v:true};
+      if(tk.v==='FALSE')return{t:'bool',v:false};
+      throw E('#NAME?',`إكسل لا يعرف الاسم «${tk.v}». إن كان نصاً فضعه بين علامتي تنصيص، وإن كان دالة فاكتب بعده قوساً (`);
+    }
+    if(tk.k==='op'&&tk.v==='('){const e=comparison();if(!isOp(')'))throw E('#PARSE','ينقص قوس الإغلاق ).');p++;return e;}
+    if(tk.k==='op'&&CMP.includes(tk.v))throw E('#PARSE',`العلامة ${tk.v} جاءت في غير مكانها. إن كانت شرطاً داخل COUNTIF فضعها مع الرقم بين علامتي تنصيص، مثل "${tk.v}90"`);
+    if(tk.k==='op'&&(tk.v===','||tk.v===')'))throw E('#PARSE','توجد فاصلة أو قوس في غير مكانه.');
+    throw E('#PARSE',`الرمز «${tk.v}» في غير مكانه.`);
+  }
+  const ast=comparison();
+  if(p<toks.length){const tk=toks[p];
+    if(tk.k==='op'&&tk.v===')')throw E('#PARSE','يوجد قوس إغلاق ) زائد.');
+    throw E('#PARSE','يوجد جزء زائد في نهاية الصيغة. هل نسيت فاصلة أو علامة مقارنة؟');}
+  return ast;
+}
+function usesFn(n,name){if(!n||typeof n!=='object')return false;if(n.t==='fn'&&n.name===name)return true;
+  return ['l','r','e'].some(k=>usesFn(n[k],name))||(n.args||[]).some(a=>usesFn(a,name));}
+
+function roundX(x,d){d=Math.trunc(d);const s=x<0?-1:1,ax=Math.abs(x);let r;
+  const str=String(ax);
+  if(/e/i.test(str))r=Math.round(ax*Math.pow(10,d))/Math.pow(10,d);
+  else r=Number(Math.round(Number(str+'e'+d))+'e'+(-d));
+  return s*r||0;}
+
+function cellAt(ctx,c,r){const key=colL(c)+r;
+  if(ctx.forbid&&ctx.forbid.has(key))return E('#CIRC','الصيغة تشير إلى الخلية التي تُكتب فيها نفسها (مرجع دائري). اختر خلايا البيانات.');
+  if(ctx.results&&key in ctx.results)return ctx.results[key];
+  const v=ctx.grid[r-1]?.[c];return v===undefined||v===''?null:v;}
+const rr=(r,ctx)=>r.absR?r.row:r.row+ctx.off;
+function rangeVals(n,ctx){const r1=rr(n.a,ctx),r2=rr(n.b,ctx),c1=n.a.col,c2=n.b.col,out=[];
+  for(let r=Math.min(r1,r2);r<=Math.max(r1,r2);r++){const row=[];for(let c=Math.min(c1,c2);c<=Math.max(c1,c2);c++)row.push(cellAt(ctx,c,r));out.push(row);}return out;}
+function single(v){const r=v.range;if(r.length===1&&r[0].length===1)return r[0][0];
+  return E('#VALUE!','استخدمت نطاقاً كاملاً في مكان يحتاج خلية واحدة. النطاقات تُكتب داخل دوال مثل COUNTIF.');}
+function num(v){if(v&&v.range)v=single(v);if(isErr(v))return v;if(v===null)return 0;if(typeof v==='boolean')return v?1:0;if(typeof v==='number')return v;
+  const s=String(v).trim();if(s!==''&&!isNaN(Number(s)))return Number(s);return E('#VALUE!',`لا يمكن إجراء عملية حسابية على النص «${v}».`);}
+const rank=v=>typeof v==='number'?0:typeof v==='string'?1:2;
+function cmp(a,b){if(a===null&&b===null)return 0;
+  if(a===null)a=typeof b==='number'?0:typeof b==='string'?'':false;
+  if(b===null)b=typeof a==='number'?0:typeof a==='string'?'':false;
+  const ra=rank(a),rb=rank(b);if(ra!==rb)return ra<rb?-1:1;
+  if(ra===0){const d=a-b;return Math.abs(d)<1e-12*Math.max(1,Math.abs(a),Math.abs(b))?0:d<0?-1:1;}
+  if(ra===1){a=a.toLowerCase();b=b.toLowerCase();}else{a=a?1:0;b=b?1:0;}
+  return a<b?-1:a>b?1:0;}
+const str=v=>v===null?'':typeof v==='boolean'?(v?'TRUE':'FALSE'):typeof v==='number'?fmtNum(v):String(v);
+function bin(op,a,b){
+  if(a&&a.range)a=single(a);if(b&&b.range)b=single(b);
+  if(isErr(a))return a;if(isErr(b))return b;
+  switch(op){
+    case'=':return cmp(a,b)===0;case'<>':return cmp(a,b)!==0;case'<':return cmp(a,b)<0;case'>':return cmp(a,b)>0;
+    case'<=':return cmp(a,b)<=0;case'>=':return cmp(a,b)>=0;case'&':return str(a)+str(b);}
+  const x=num(a),y=num(b);if(isErr(x))return x;if(isErr(y))return y;
+  if(op==='+')return x+y;if(op==='-')return x-y;if(op==='*')return x*y;
+  if(op==='/')return y===0?E('#DIV/0!','لا يمكن القسمة على صفر.'):x/y;return Math.pow(x,y);}
+
+const FN={AND:[1,255],OR:[1,255],NOT:[1,1],ROUND:[2,2],COUNTIF:[2,2],IF:[2,3],SUM:[1,255],AVERAGE:[1,255]};
+function argMsg(name,k){
+  if(name==='NOT')return k===0?'الدالة NOT تحتاج شرطاً واحداً بين القوسين، مثل =NOT(C2="مكتملة")':'الدالة NOT تقبل وسيطة واحدة فقط. لعكس أكثر من شرط ضعها حول OR أو AND، مثل =NOT(OR(...))';
+  if(name==='ROUND')return k<2?'الدالة ROUND تحتاج وسيطتين: الرقم، ثم عدد المنازل العشرية. مثال: =ROUND(B2,1)':'الدالة ROUND تقبل وسيطتين فقط: الرقم وعدد المنازل العشرية.';
+  if(name==='COUNTIF')return 'الدالة COUNTIF تحتاج وسيطتين بالضبط: النطاق ثم الشرط. مثال: =COUNTIF(B2:B11,"الحاسب")';
+  if(name==='IF')return 'الدالة IF تحتاج: الاختبار المنطقي، ثم القيمة إذا تحقق، ثم القيمة إذا لم يتحقق.';
+  return `الدالة ${name} تحتاج وسيطة واحدة على الأقل.`;}
+function suggest(name){const n=name.replace(/[^A-Z]/g,'');
+  const known=Object.keys(FN).find(k=>k===n);if(known)return ` هل تقصد ${known}؟ اكتبها دون مسافات أو رموز.`;
+  if(/COUNT/.test(n))return ' هل تقصد COUNTIF؟';if(/ROUN|RUND/.test(n))return ' هل تقصد ROUND؟';return '';}
+
+function logicals(n,ctx){const out=[];
+  for(const a of n.args){const v=ev(a,ctx);if(isErr(v))return v;
+    if(v&&v.range){for(const row of v.range)for(const c of row){if(isErr(c))return c;if(typeof c==='boolean')out.push(c);else if(typeof c==='number')out.push(c!==0);}continue;}
+    if(v===null)continue;
+    if(typeof v==='boolean')out.push(v);else if(typeof v==='number')out.push(v!==0);
+    else{const u=String(v).toUpperCase();if(u==='TRUE'||u==='FALSE'){out.push(u==='TRUE');continue;}
+      return E('#VALUE!',`الوسيطة "${v}" نص وحده وليست شرطاً. كل وسيطة في ${n.name} يجب أن تكون مقارنة كاملة، مثل D2="${v}"`);}}
+  if(!out.length)return E('#VALUE!',`لم تجد ${n.name} أي شرط لتفحصه.`);return out;}
+function makeCrit(c){
+  if(c===null)c='';
+  if(typeof c==='number')return x=>typeof x==='number'&&Math.abs(x-c)<1e-12;
+  if(typeof c==='boolean')return x=>x===c;
+  let s=String(c),op='=';const m=/^(<=|>=|<>|=|<|>)/.exec(s);if(m){op=m[1];s=s.slice(op.length);}
+  const sn=s.trim()!==''&&!isNaN(Number(s))?Number(s):null;
+  const sb=/^(TRUE|FALSE)$/i.test(s)?s.toUpperCase()==='TRUE':null;
+  let eq;
+  if(sn!==null)eq=x=>typeof x==='number'&&Math.abs(x-sn)<1e-12;
+  else if(sb!==null)eq=x=>x===sb;
+  else if(s==='')eq=x=>x===null||x==='';
+  else{const re=new RegExp('^'+s.replace(/[.+^${}()|[\]\\]/g,'\\$&').replace(/~\*/g,'\u0001').replace(/~\?/g,'\u0002').replace(/\*/g,'.*').replace(/\?/g,'.').replace(/\u0001/g,'\\*').replace(/\u0002/g,'\\?')+'$','i');
+    eq=x=>typeof x==='string'&&re.test(x);}
+  if(op==='=')return eq;
+  if(op==='<>')return x=>!eq(x);
+  const f={'<':d=>d<0,'>':d=>d>0,'<=':d=>d<=0,'>=':d=>d>=0}[op];
+  if(sn!==null)return x=>typeof x==='number'&&f(x-sn);
+  const sl=s.toLowerCase();return x=>typeof x==='string'&&f(x.toLowerCase()<sl?-1:x.toLowerCase()>sl?1:0);}
+
+function callFn(n,ctx){
+  const lim=FN[n.name];
+  if(!lim)return E('#NAME?',`إكسل لا يعرف دالة باسم ${n.name}.${suggest(n.name)}`);
+  const k=n.args.length;if(k<lim[0]||k>lim[1])throw E('#PARSE',argMsg(n.name,k));
+  const A=i=>ev(n.args[i],ctx);
+  switch(n.name){
+    case'AND':{const v=logicals(n,ctx);return isErr(v)?v:v.every(Boolean);}
+    case'OR':{const v=logicals(n,ctx);return isErr(v)?v:v.some(Boolean);}
+    case'NOT':{let v=A(0);if(v&&v.range)v=single(v);if(isErr(v))return v;if(v===null)return true;
+      if(typeof v==='boolean')return!v;if(typeof v==='number')return v===0;
+      return E('#VALUE!','NOT تحتاج شرطاً مثل C2="مكتملة"، وليس نصاً وحده.');}
+    case'ROUND':{const x=num(A(0));if(isErr(x))return x;const d=num(A(1));if(isErr(d))return d;return roundX(x,d);}
+    case'COUNTIF':{const a0=n.args[0];
+      if(a0.t!=='range'&&a0.t!=='ref')throw E('#PARSE','الوسيطة الأولى في COUNTIF يجب أن تكون نطاق خلايا مثل C2:C11، والشرط يأتي بعدها.');
+      const vals=a0.t==='range'?rangeVals(a0,ctx):[[ev(a0,ctx)]];
+      let c=A(1);if(c&&c.range)c=single(c);if(isErr(c))return c;
+      const t=makeCrit(c);let cnt=0;for(const row of vals)for(const v of row){if(isErr(v)&&v.code==='#CIRC')return v;if(!isErr(v)&&t(v))cnt++;}return cnt;}
+    case'IF':{let c=A(0);if(c&&c.range)c=single(c);if(isErr(c))return c;
+      let b;if(c===null)b=false;else if(typeof c==='boolean')b=c;else if(typeof c==='number')b=c!==0;else return E('#VALUE!','الوسيطة الأولى في IF يجب أن تكون شرطاً.');
+      if(b)return n.args[1]?A(1):true;return n.args[2]?A(2):false;}
+    case'SUM':case'AVERAGE':{let s=0,cnt=0;
+      for(const a of n.args){const v=ev(a,ctx);if(isErr(v))return v;
+        if(v&&v.range){for(const row of v.range)for(const c of row){if(isErr(c))return c;if(typeof c==='number'){s+=c;cnt++;}}}
+        else{const x=num(v);if(isErr(x))return x;s+=x;cnt++;}}
+      if(n.name==='SUM')return s;return cnt?s/cnt:E('#DIV/0!','لا توجد أرقام لحساب متوسطها.');}
+  }}
+function ev(n,ctx){
+  switch(n.t){
+    case'num':case'str':case'bool':return n.v;
+    case'empty':return null;
+    case'ref':return cellAt(ctx,n.r.col,rr(n.r,ctx));
+    case'range':return{range:rangeVals(n,ctx)};
+    case'neg':{const v=num(ev(n.e,ctx));return isErr(v)?v:-v;}
+    case'pct':{const v=num(ev(n.e,ctx));return isErr(v)?v:v/100;}
+    case'bin':return bin(n.op,ev(n.l,ctx),ev(n.r,ctx));
+    case'fn':return callFn(n,ctx);}}
+function evalAt(ast,ctx){let v=ev(ast,ctx);if(v&&v.range)v=single(v);return v===null?0:v;}
+
+function fmtNum(v){if(!isFinite(v))return'#NUM!';return String(parseFloat(v.toPrecision(12)));}
+function fmt(v){if(isErr(v))return v.code;if(v===null||v===undefined)return'';if(typeof v==='boolean')return v?'TRUE':'FALSE';if(typeof v==='number')return fmtNum(v);return String(v);}
+function same(a,b){if(isErr(a)||isErr(b))return false;if(typeof a==='number'&&typeof b==='number')return Math.abs(a-b)<1e-9;return a===b;}
+
+/* ===================== lesson content ===================== */
+const truth=(k)=>{
+  const c=v=>`<span class="chip ${v?'t':'f'}">${v?'TRUE':'FALSE'}</span>`;
+  if(k==='not')return`<div class="tblwrap"><table class="tt"><tr><th>الشرط</th><th>نتيجة NOT</th></tr>${[true,false].map(a=>`<tr><td>${c(a)}</td><td>${c(!a)}</td></tr>`).join('')}</table></div>`;
+  const f=k==='and'?(a,b)=>a&&b:(a,b)=>a||b;
+  return`<div class="tblwrap"><table class="tt"><tr><th>الشرط الأول</th><th>الشرط الثاني</th><th>نتيجة ${k.toUpperCase()}</th></tr>${[[true,true],[true,false],[false,true],[false,false]].map(([a,b])=>`<tr><td>${c(a)}</td><td>${c(b)}</td><td>${c(f(a,b))}</td></tr>`).join('')}</table></div>`;};
+const syntax=(name,parts)=>`<div class="syntax"><span class="k">=${name}(</span>${parts.map(([p,req])=>`<span class="${req?'s':'o'}">${p}</span>`).join('<span class="o">, </span>')}<span class="k">)</span></div>`;
+const argsList=items=>`<ul class="args">${items.map(a=>`<li><div class="an">${a.n}<small class="${a.req?'req':'opt'}">${a.req?'إجبارية':'اختيارية'}</small></div><div>${a.d}</div></li>`).join('')}</ul>`;
+
+const ST=[
+{id:'start',code:'=',tab:'ابدأ هنا',eyebrow:'المحطة التمهيدية',title:'الشرط المنطقي: سؤال جوابه نعم أو لا',
+ lead:'قبل الدوال نتعلّم القطعة التي تُبنى منها: الشرط. يجيب إكسل عن كل شرط بإحدى قيمتين فقط، TRUE أو FALSE.',
+ grid:[['الموظف','العمر','المدينة','بالغ؟','من الرياض؟'],['أحمد',17,'الرياض','',''],['خالد',24,'جدة','',''],['فهد',19,'الدمام','',''],['سعد',15,'الرياض','',''],['عمر',31,'أبها','',''],['يوسف',18,'الرياض','','']],
+ placeholder:'=B2>=18',
+ concept:()=>`<div class="grid2">
+  <article class="panel prose"><h3>كيف تعمل في هذا المعمل؟</h3>
+   <ol class="steps">
+    <li><span>اختر محطة من الشريط العلوي، وابدأ بالترتيب: الشرط، ثم AND و OR و NOT، ثم ROUND و COUNTIF.</span></li>
+    <li><span>اقرأ بطاقة الشرح، وانتبه إلى <b>وسيطات</b> الدالة: وهي القيم التي تكتبها بين القوسين.</span></li>
+    <li><span>اختر تمريناً من القائمة؛ تظهر خلية الهدف في الجدول بإطار أخضر.</span></li>
+    <li><span>اكتب الصيغة للخلية الأولى فقط، ثم اضغط «تنفيذ» أو مفتاح Enter. ينسخ المعمل صيغتك إلى بقية الصفوف كما يفعل مقبض التعبئة في إكسل.</span></li>
+    <li><span>انقر على أي خلية في الجدول لإضافة مرجعها إلى الصيغة، أو اسحب على عدة خلايا لإضافة نطاق مثل B2:B7.</span></li>
+   </ol></article>
+  <article class="panel prose"><h3>الشرط المنطقي وعوامل المقارنة</h3>
+   <p>الشرط سؤال تطرحه على إكسل، مثل: هل عمر أحمد 18 سنة أو أكثر؟ فيجيب <span class="T">TRUE</span> إن تحقق الشرط، أو <span class="F">FALSE</span> إن لم يتحقق.</p>
+   <div class="tblwrap"><table class="tt">
+    <tr><th>العامل</th><th>معناه</th><th>مثال</th></tr>
+    <tr><td>${fx('=')}</td><td>يساوي</td><td>${fx('=C2="جدة"')}</td></tr>
+    <tr><td>${fx('<>')}</td><td>لا يساوي</td><td>${fx('=C2<>"جدة"')}</td></tr>
+    <tr><td>${fx('>')}</td><td>أكبر من</td><td>${fx('=B2>20')}</td></tr>
+    <tr><td>${fx('<')}</td><td>أصغر من</td><td>${fx('=B2<20')}</td></tr>
+    <tr><td>${fx('>=')}</td><td>أكبر من أو يساوي</td><td>${fx('=B2>=18')}</td></tr>
+    <tr><td>${fx('<=')}</td><td>أصغر من أو يساوي</td><td>${fx('=B2<=30')}</td></tr>
+   </table></div>
+   <p class="note"><b>تذكّر:</b> النص يُكتب بين علامتي تنصيص ${fx('"الرياض"')}، أما الأرقام ومراجع الخلايا فتُكتب بدونهما. ${tryBtn('=C2="الرياض"')}</p>
+  </article></div>`,
+ tasks:[
+  {id:'s1',title:'هل الموظف بالغ؟',col:'D',from:2,to:7,need:[],expect:r=>r.B>=18,
+   prompt:'اكتب في الخلية D2 شرطاً يتحقق من أن عمر أحمد في الخلية B2 هو 18 سنة أو أكثر.',
+   hints:['استخدم العلامة >= ومعناها «أكبر من أو يساوي».','تبدأ الصيغة بـ = ثم مرجع خلية العمر ثم العلامة ثم الرقم.'],solution:'=B2>=18'},
+  {id:'s2',title:'هل يسكن في الرياض؟',col:'E',from:2,to:7,need:[],expect:r=>r.C==='الرياض',
+   prompt:'اكتب في الخلية E2 شرطاً يتحقق من أن المدينة في الخلية C2 هي «الرياض».',
+   hints:['قارن خلية المدينة بالنص باستخدام العلامة =','النص يُكتب بين علامتي تنصيص: "الرياض"'],solution:'=C2="الرياض"'}],
+ tips:['كل صيغة تبدأ بعلامة = ، وبدونها يعامل إكسل ما تكتبه نصاً عادياً.',
+  'العلامة >= تشمل الحد نفسه: الشرط 18>=18 نتيجته TRUE، أما 18>18 فنتيجته FALSE. لاحظ يوسف في الجدول.',
+  'اكتب مرجع الخلية مثل B2 بدلاً من كتابة الرقم نفسه، حتى تعمل الصيغة عند نسخها إلى بقية الصفوف.',
+  'إذا رفض جهازك الفاصلة , بين الوسيطات فاستخدم الفاصلة المنقوطة ; حسب إعدادات المنطقة.'],
+ quiz:[{q:'إذا كانت الخلية B2 تحتوي على 18، فما نتيجة الصيغة =B2>18 ؟',opts:['TRUE','FALSE'],a:1,why:'الرقم 18 ليس أكبر من 18، فالنتيجة FALSE. لو كتبنا >= لكانت النتيجة TRUE.'},
+  {q:'أي صيغة تتحقق من أن المدينة في C2 هي جدة؟',opts:['=C2=جدة','=C2="جدة"','="C2=جدة"'],a:1,why:'النص يُكتب بين علامتي تنصيص، أما مرجع الخلية C2 فيُكتب بدونهما.'}]},
+
+{id:'and',code:'AND',tab:'الدالة AND',eyebrow:'المحطة الأولى',title:'AND: هل تحققت جميع الشروط؟',
+ lead:'تستخدم AND حين يحتاج القرار إلى أكثر من شرط في الوقت نفسه.',
+ grid:[['المتدرب','النظري','العملي','الحضور %','ناجح؟','يستحق الشهادة؟'],['أحمد',78,85,92,'',''],['خالد',45,90,88,'',''],['فهد',60,40,95,'',''],['سعد',88,72,70,'',''],['عمر',30,35,60,'',''],['يوسف',95,91,100,'',''],['ماجد',50,50,75,'',''],['بدر',67,58,80,'','']],
+ placeholder:'=AND(B2>=50,C2>=50)',
+ concept:()=>`<div class="grid2">
+  <article class="panel prose"><p class="eyebrow">التعريف</p><h3>AND تعني «و»</h3>
+   <p>تفحص الدالة <b>AND</b> عدة شروط معاً، وتُرجع <span class="T">TRUE</span> فقط إذا تحققت <b>جميع</b> الشروط. يكفي أن يفشل شرط واحد لتصبح النتيجة <span class="F">FALSE</span>.</p>
+   <p class="analogy"><b>تشبيه:</b> خزنة عليها قفلان؛ لا تُفتح إلا إذا فتحت القفل الأول <b>و</b> القفل الثاني معاً. مفتاح واحد لا يكفي.</p>
+   ${truth('and')}</article>
+  <article class="panel"><p class="eyebrow">الصيغة والوسيطات</p>
+   ${syntax('AND',[['logical1',1],['[logical2]',0],['...',0]])}
+   ${argsList([{n:'logical1',req:1,d:'الشرط الأول الذي تريد فحصه، مثل B2>=50.'},{n:'[logical2], ...',req:0,d:'شروط إضافية تفصل بينها بفاصلة. الأقواس المربعة [ ] تعني أن الوسيطة اختيارية، ويمكنك كتابة حتى 255 شرطاً.'}])}
+   <p style="margin-top:12px"><b>مثال:</b> ينجح المتدرب إذا حصل على 50 فأكثر في النظري <b>و</b> 50 فأكثر في العملي: ${fx('=AND(B2>=50,C2>=50)')} ${tryBtn('=AND(B2>=50,C2>=50)')}</p>
+   <p style="margin-top:6px;color:var(--muted)">خالد حصل على 90 في العملي، لكن نتيجته FALSE لأن درجة النظري 45. مع AND لا تعوّض درجة عالية عن أخرى منخفضة.</p>
+  </article></div>`,
+ tasks:[
+  {id:'a1',title:'من نجح في المقرر؟',col:'E',from:2,to:9,need:['AND'],expect:r=>r.B>=50&&r.C>=50,
+   prompt:'اكتب في الخلية E2 صيغة تُرجع TRUE إذا كانت درجة النظري 50 فأكثر <b>و</b> درجة العملي 50 فأكثر.',
+   hints:['الصيغة تبدأ بـ =AND( ثم الشرط الأول، ثم فاصلة، ثم الشرط الثاني.','الشرط الأول B2>=50 والشرط الثاني على العمود C.'],solution:'=AND(B2>=50,C2>=50)'},
+  {id:'a2',title:'من يستحق الشهادة؟',col:'F',from:2,to:9,need:['AND'],expect:r=>r.B>=50&&r.C>=50&&r.D>=75,
+   prompt:'يستحق المتدرب الشهادة إذا نجح في النظري والعملي (50 فأكثر لكل منهما) <b>و</b> كانت نسبة حضوره 75 فأكثر. اكتب الصيغة في F2.',
+   hints:['تقبل AND أكثر من شرطين؛ أضف الشرط الثالث بعد فاصلة.','الشرط الثالث على عمود الحضور: D2>=75'],solution:'=AND(B2>=50,C2>=50,D2>=75)'}],
+ tips:['اقرأ الصيغة بصوت مسموع: «هل تحقق الشرط الأول و الشرط الثاني؟» فإن احتجت كلمة «و» فالدالة هي AND.',
+  'انظر إلى ماجد: درجاته 50 و 50 وحضوره 75 بالضبط. العلامة >= تشمل الحد نفسه، أما > فتستبعده.',
+  'تُرجع AND القيمة TRUE أو FALSE فقط. لعرض كلمة مثل «ناجح» ضعها داخل IF: =IF(AND(B2>=50,C2>=50),"ناجح","راسب")'],
+ quiz:[{q:'ما نتيجة الصيغة =AND(TRUE,FALSE,TRUE) ؟',opts:['TRUE','FALSE'],a:1,why:'يكفي شرط واحد غير متحقق لتصبح نتيجة AND هي FALSE.'},
+  {q:'متى تُرجع الدالة AND القيمة TRUE؟',opts:['إذا تحقق شرط واحد على الأقل','إذا تحققت جميع الشروط','إذا لم يتحقق أي شرط'],a:1,why:'AND صارمة: لا تقبل إلا بتحقق كل الشروط.'}]},
+
+{id:'or',code:'OR',tab:'الدالة OR',eyebrow:'المحطة الثانية',title:'OR: هل تحقق شرط واحد على الأقل؟',
+ lead:'تستخدم OR حين يكفي تحقق أي شرط من عدة شروط بديلة.',
+ grid:[['المندوب','المبيعات','عملاء جدد','المدينة','حافز؟','فرع رئيسي؟'],['ناصر',52000,4,'الرياض','',''],['سلمان',31000,12,'جدة','',''],['طلال',28000,6,'الدمام','',''],['فيصل',45000,15,'الرياض','',''],['راشد',19000,3,'أبها','',''],['حمد',40000,10,'جدة','',''],['عادل',39999,9,'تبوك','',''],['وليد',61000,2,'الدمام','','']],
+ placeholder:'=OR(B2>=40000,C2>=10)',
+ concept:()=>`<div class="grid2">
+  <article class="panel prose"><p class="eyebrow">التعريف</p><h3>OR تعني «أو»</h3>
+   <p>تفحص الدالة <b>OR</b> عدة شروط، وتُرجع <span class="T">TRUE</span> إذا تحقق <b>شرط واحد على الأقل</b>. ولا تُرجع <span class="F">FALSE</span> إلا إذا لم يتحقق أي شرط.</p>
+   <p class="analogy"><b>تشبيه:</b> لدخول المطار تُظهر الهوية الوطنية <b>أو</b> جواز السفر. وثيقة واحدة تكفي، ولا مشكلة إن أحضرت الاثنتين.</p>
+   ${truth('or')}</article>
+  <article class="panel"><p class="eyebrow">الصيغة والوسيطات</p>
+   ${syntax('OR',[['logical1',1],['[logical2]',0],['...',0]])}
+   ${argsList([{n:'logical1',req:1,d:'الشرط الأول، مثل B2>=40000.'},{n:'[logical2], ...',req:0,d:'شروط بديلة يكفي تحقق أي منها، حتى 255 شرطاً.'}])}
+   <p style="margin-top:12px"><b>مثال:</b> يستحق المندوب حافزاً إذا بلغت مبيعاته 40000 ريال <b>أو</b> أضاف 10 عملاء جدد: ${fx('=OR(B2>=40000,C2>=10)')} ${tryBtn('=OR(B2>=40000,C2>=10)')}</p>
+   <p style="margin-top:6px;color:var(--muted)">سلمان مبيعاته 31000 فقط، لكنه أضاف 12 عميلاً، فاستحق الحافز.</p>
+  </article></div>`,
+ tasks:[
+  {id:'o1',title:'من يستحق الحافز؟',col:'E',from:2,to:9,need:['OR'],expect:r=>r.B>=40000||r.C>=10,
+   prompt:'اكتب في E2 صيغة تُرجع TRUE إذا كانت المبيعات 40000 فأكثر <b>أو</b> كان عدد العملاء الجدد 10 فأكثر.',
+   hints:['ابدأ بـ =OR( ثم شرط المبيعات، ثم فاصلة، ثم شرط العملاء.','لاحظ عادل: مبيعاته 39999 وعملاؤه 9، فيجب أن تكون نتيجته FALSE.'],solution:'=OR(B2>=40000,C2>=10)'},
+  {id:'o2',title:'هل يعمل في فرع رئيسي؟',col:'F',from:2,to:9,need:['OR'],expect:r=>r.D==='الرياض'||r.D==='جدة',
+   prompt:'الفرعان الرئيسيان في الرياض وجدة. اكتب في F2 صيغة تُرجع TRUE إذا كانت المدينة «الرياض» <b>أو</b> «جدة».',
+   hints:['كل شرط يحتاج مقارنة كاملة: D2="الرياض"','كرّر مرجع الخلية في الشرط الثاني أيضاً: D2="جدة"'],solution:'=OR(D2="الرياض",D2="جدة")'}],
+ tips:['إذا قلت لنفسك «أيٌّ منها يكفي» فالدالة المناسبة هي OR.',
+  'خطأ شائع: =OR(D2="الرياض","جدة"). الوسيطة الثانية نص وحده وليست شرطاً. الصواب أن تكرر المرجع: =OR(D2="الرياض",D2="جدة")',
+  'نتيجة OR لا تكون FALSE إلا إذا كانت كل الشروط FALSE، وهذا عكس AND تماماً.'],
+ quiz:[{q:'ما نتيجة الصيغة =OR(FALSE,FALSE) ؟',opts:['TRUE','FALSE'],a:1,why:'لم يتحقق أي شرط، فالنتيجة FALSE.'},
+  {q:'مبيعات سعد 30000 ريال وعملاؤه الجدد 12. ما نتيجة =OR(B2>=40000,C2>=10) له؟',opts:['TRUE','FALSE'],a:0,why:'شرط المبيعات لم يتحقق، لكن شرط العملاء تحقق، ويكفي شرط واحد مع OR.'}]},
+
+{id:'not',code:'NOT',tab:'الدالة NOT',eyebrow:'المحطة الثالثة',title:'NOT: اعكس نتيجة الشرط',
+ lead:'تستخدم NOT حين يكون من الأسهل أن تصف ما لا تريده.',
+ grid:[['الموظف','المهمة','الحالة','حضر التدريب','تحتاج متابعة؟','لم يحضر؟','لم تُنجز ولم تُراجع؟'],['مازن','إعداد التقرير الشهري','مكتملة','نعم','','',''],['هشام','تحديث قاعدة البيانات','قيد التنفيذ','لا','','',''],['زياد','مراجعة الفواتير','لم تبدأ','نعم','','',''],['أنس','تصميم العرض التقديمي','قيد المراجعة','لا','','',''],['إبراهيم','جرد المستودع','مكتملة','لا','','',''],['سامي','متابعة العملاء','قيد التنفيذ','نعم','','','']],
+ placeholder:'=NOT(C2="مكتملة")',
+ concept:()=>`<div class="grid2">
+  <article class="panel prose"><p class="eyebrow">التعريف</p><h3>NOT تعني «ليس»</h3>
+   <p>تعكس الدالة <b>NOT</b> نتيجة الشرط: إذا كان الشرط <span class="T">TRUE</span> أرجعت <span class="F">FALSE</span>، وإذا كان <span class="F">FALSE</span> أرجعت <span class="T">TRUE</span>.</p>
+   <p class="analogy"><b>تشبيه:</b> مفتاح الإضاءة؛ إن كان المصباح مضاءً أطفأه، وإن كان مطفأً أضاءه.</p>
+   ${truth('not')}</article>
+  <article class="panel"><p class="eyebrow">الصيغة والوسيطة</p>
+   ${syntax('NOT',[['logical',1]])}
+   ${argsList([{n:'logical',req:1,d:'الشرط الذي تريد عكس نتيجته. تقبل NOT <b>وسيطة واحدة فقط</b>؛ لعكس عدة شروط ضعها داخل OR أو AND أولاً.'}])}
+   <p style="margin-top:12px"><b>مثال:</b> المهام التي <b>ليست</b> مكتملة تحتاج متابعة: ${fx('=NOT(C2="مكتملة")')} ${tryBtn('=NOT(C2="مكتملة")')}</p>
+   <p style="margin-top:6px;color:var(--muted)">مهمة مازن مكتملة، فالشرط C2="مكتملة" نتيجته TRUE، وتعكسه NOT إلى FALSE: لا تحتاج متابعة.</p>
+  </article></div>`,
+ tasks:[
+  {id:'n1',title:'أي المهام تحتاج متابعة؟',col:'E',from:2,to:7,need:['NOT'],expect:r=>r.C!=='مكتملة',
+   prompt:'اكتب في E2 صيغة تستخدم NOT لتُرجع TRUE إذا كانت حالة المهمة <b>ليست</b> «مكتملة».',
+   hints:['اكتب أولاً الشرط العادي: C2="مكتملة"','ثم ضعه داخل NOT: =NOT(...)'],solution:'=NOT(C2="مكتملة")'},
+  {id:'n2',title:'من لم يحضر التدريب؟',col:'F',from:2,to:7,need:['NOT'],expect:r=>r.D!=='نعم',
+   prompt:'اكتب في F2 صيغة تستخدم NOT لتُرجع TRUE للموظف الذي <b>لم</b> يحضر التدريب (العمود D ليس «نعم»).',
+   hints:['الشرط العادي هو D2="نعم"، فاعكسه بـ NOT.'],solution:'=NOT(D2="نعم")'},
+  {id:'n3',title:'لم تُنجز ولم تُراجع',col:'G',from:2,to:7,need:['NOT','OR'],challenge:true,expect:r=>!(r.C==='مكتملة'||r.C==='قيد المراجعة'),
+   prompt:'تحدٍّ: اكتب في G2 صيغة تُرجع TRUE إذا كانت الحالة <b>ليست</b> «مكتملة» <b>وليست</b> «قيد المراجعة». استخدم NOT مع OR.',
+   hints:['اكتب أولاً OR التي تتحقق من الحالتين: OR(C2="مكتملة",C2="قيد المراجعة")','ثم اعكس الناتج كله بوضعه داخل NOT.'],solution:'=NOT(OR(C2="مكتملة",C2="قيد المراجعة"))'}],
+ tips:['تقبل NOT وسيطة واحدة فقط. الصيغة =NOT(C2>5,D2>5) خاطئة؛ اكتب بدلاً منها =NOT(OR(C2>5,D2>5)).',
+  'الصيغة =C2<>"مكتملة" تعطي نتيجة =NOT(C2="مكتملة") نفسها. تظهر قيمة NOT الحقيقية عند عكس شرط مركّب.',
+  'حلّ الصيغة المتداخلة من الداخل إلى الخارج: احسب OR أولاً، ثم اعكس نتيجتها بـ NOT.'],
+ quiz:[{q:'ما نتيجة الصيغة =NOT(10>5) ؟',opts:['TRUE','FALSE'],a:1,why:'الشرط 10>5 صحيح (TRUE)، وNOT تعكسه إلى FALSE.'},
+  {q:'كم وسيطة تقبل الدالة NOT؟',opts:['وسيطة واحدة','وسيطتين','حتى 255 وسيطة'],a:0,why:'NOT تعكس شرطاً واحداً فقط.'}]},
+
+{id:'round',code:'ROUND',tab:'الدالة ROUND',eyebrow:'المحطة الرابعة',title:'ROUND: قرّب الرقم إلى المنازل التي تحتاجها',
+ lead:'تقرّب ROUND الرقم إلى عدد محدد من المنازل العشرية، فتجعل المعدلات والأسعار والرواتب أوضح وأسهل في الاستخدام.',
+ grid:[['الطالب','المعدل','سعر الكتاب مع الضريبة','الراتب','المعدل بمنزلة واحدة','السعر بمنزلتين','الراتب لأقرب مئة'],['علي',87.456,23.4783,7845,'','',''],['حسن',92.05,18.125,6250,'','',''],['محمد',78.94,15.995,9150,'','',''],['عبدالرحمن',65.333,42.004,5049,'','',''],['تركي',99.96,9.999,11999,'','',''],['منصور',70.25,30.5,6705,'','','']],
+ placeholder:'=ROUND(B2,1)',widget:'round',
+ concept:()=>`<div class="grid2">
+  <article class="panel prose"><p class="eyebrow">التعريف</p><h3>ماذا تفعل ROUND؟</h3>
+   <p>تأخذ الدالة <b>ROUND</b> رقماً فيه كسور كثيرة، وتقرّبه إلى عدد المنازل العشرية الذي تحدده أنت. مثلاً: المعدل 87.456 يصبح 87.5 إذا أردت منزلة عشرية واحدة.</p>
+   <p class="analogy"><b>قاعدة الخمسة:</b> انظر إلى الرقم الذي يلي آخر منزلة تريد إبقاءها. إن كان <b>5 أو أكثر</b> فزد المنزلة الأخيرة بمقدار 1، وإن كان <b>أقل من 5</b> فاتركها كما هي، ثم احذف ما بعدها.</p>
+   <div class="tblwrap"><table class="tt"><tr><th>الصيغة</th><th>النتيجة</th><th>ماذا حدث؟</th><th></th></tr>
+    <tr><td>${fx('=ROUND(87.456,2)')}</td><td class="T">87.46</td><td>منزلتان بعد الفاصلة</td><td>${tryBtn('=ROUND(87.456,2)')}</td></tr>
+    <tr><td>${fx('=ROUND(87.456,1)')}</td><td class="T">87.5</td><td>منزلة واحدة</td><td>${tryBtn('=ROUND(87.456,1)')}</td></tr>
+    <tr><td>${fx('=ROUND(87.456,0)')}</td><td class="T">87</td><td>أقرب عدد صحيح</td><td>${tryBtn('=ROUND(87.456,0)')}</td></tr>
+    <tr><td>${fx('=ROUND(1249,-2)')}</td><td class="T">1200</td><td>أقرب مئة</td><td>${tryBtn('=ROUND(1249,-2)')}</td></tr>
+   </table></div></article>
+  <article class="panel"><p class="eyebrow">الصيغة والوسيطتان</p>
+   ${syntax('ROUND',[['number',1],['num_digits',1]])}
+   ${argsList([{n:'number',req:1,d:'<b>الرقم المراد تقريبه.</b> يمكن أن يكون رقماً مكتوباً مثل 87.456، أو مرجع خلية مثل B2، أو صيغة أخرى.'},
+    {n:'num_digits',req:1,d:'<b>عدد المنازل العشرية</b> التي تبقى بعد التقريب:<ul><li>رقم موجب مثل 1 أو 2: يبقي هذا العدد من المنازل بعد الفاصلة.</li><li>صفر 0: يقرّب إلى أقرب عدد صحيح بلا فاصلة.</li><li>رقم سالب مثل -1 أو -2: يقرّب إلى أقرب عشرة أو مئة، أي إلى يسار الفاصلة.</li></ul>'}])}
+   <p class="note" style="margin-top:12px"><b>فرق مهم:</b> زر «إنقاص المنازل العشرية» في إكسل يغيّر <b>شكل</b> الرقم فقط وتبقى قيمته كاملة في الحسابات، أما ROUND فتغيّر <b>القيمة نفسها</b>.</p>
+  </article></div>`,
+ tasks:[
+  {id:'r1',title:'المعدل بمنزلة عشرية واحدة',col:'E',from:2,to:7,need:['ROUND'],expect:r=>roundX(r.B,1),
+   prompt:'قرّب معدل علي في الخلية B2 إلى <b>منزلة عشرية واحدة</b>، واكتب الصيغة في E2.',
+   hints:['الوسيطة الأولى هي مرجع المعدل B2.','الوسيطة الثانية هي عدد المنازل: 1'],solution:'=ROUND(B2,1)'},
+  {id:'r2',title:'السعر لأقرب هللة',col:'F',from:2,to:7,need:['ROUND'],expect:r=>roundX(r.C,2),
+   prompt:'الريال فيه 100 هللة، فالأسعار تُكتب بمنزلتين عشريتين. قرّب السعر في C2 إلى <b>منزلتين</b> في الخلية F2.',
+   hints:['الوسيطة الأولى C2 والثانية 2.','لاحظ سعر محمد 15.995: الرقم الثالث 5 فيرتفع السعر إلى 16.'],solution:'=ROUND(C2,2)'},
+  {id:'r3',title:'الراتب لأقرب مئة ريال',col:'G',from:2,to:7,need:['ROUND'],challenge:true,expect:r=>roundX(r.D,-2),
+   prompt:'تحدٍّ: قرّب الراتب في D2 إلى <b>أقرب مئة ريال</b> في الخلية G2 (مثلاً 7845 تصبح 7800).',
+   hints:['للتقريب إلى يسار الفاصلة نستخدم رقماً سالباً في الوسيطة الثانية.','أقرب عشرة = -1، أقرب مئة = -2'],solution:'=ROUND(D2,-2)'}],
+ tips:['اكتب مرجع الخلية B2 في الوسيطة الأولى بدلاً من نسخ الرقم يدوياً، حتى تعمل الصيغة عند تعبئتها لبقية الطلاب.',
+  'الوسيطة الثانية إجبارية في ROUND. إن أردت عدداً صحيحاً فاكتب 0 صراحة: =ROUND(B2,0)',
+  'جرّب أداة «مختبر التقريب» أعلاه: غيّر عدد المنازل وراقب الرقم المقرِّر الملوّن بالبرتقالي.',
+  'الرقم 2.5 يُقرَّب إلى 3، والرقم -2.5 يُقرَّب إلى -3: ROUND تبتعد عن الصفر عندما يكون الرقم المقرِّر 5.'],
+ quiz:[{q:'ما نتيجة الصيغة =ROUND(7.65,1) ؟',opts:['7.6','7.7','7.65'],a:1,why:'نبقي منزلة واحدة (6)، والرقم الذي يليها 5، فنزيدها: 7.7'},
+  {q:'ما نتيجة الصيغة =ROUND(1349,-2) ؟',opts:['1300','1350','1400'],a:0,why:'-2 تعني أقرب مئة. الرقم المقرِّر هو 4 في خانة العشرات، وهو أقل من 5، فتصبح 1300.'},
+  {q:'ماذا تعني الوسيطة الثانية في =ROUND(B2,0) ؟',opts:['احذف الرقم','قرّب إلى أقرب عدد صحيح','قرّب إلى أقرب عشرة'],a:1,why:'الصفر يعني ألا تبقى أي منزلة عشرية بعد الفاصلة.'}]},
+
+{id:'countif',code:'COUNTIF',tab:'الدالة COUNTIF',eyebrow:'المحطة الخامسة',title:'COUNTIF: كم خلية تحقق الشرط؟',
+ lead:'تعدّ COUNTIF الخلايا التي تحقق شرطاً واحداً داخل نطاق تحدده، فتجيب عن أسئلة مثل: كم طالباً في قسم الحاسب؟',
+ grid:[['الطالب','القسم','الدرجة','الحالة','المطلوب','النتيجة'],['أحمد','الحاسب',95,'ناجح','طلاب قسم الحاسب',''],['خالد','الإدارة',58,'راسب','الدرجات 90 فأكثر',''],['فهد','الحاسب',88,'ناجح','عدد الراسبين',''],['سعد','المحاسبة',91,'ناجح','ليسوا من الإدارة',''],['عمر','الحاسب',47,'راسب','',''],['يوسف','الإدارة',76,'ناجح','',''],['ماجد','المحاسبة',99,'ناجح','',''],['بدر','الحاسب',90,'ناجح','',''],['نايف','الحاسب',63,'ناجح','',''],['مشعل','المحاسبة',55,'راسب','','']],
+ labelCol:'E',dataCols:4,placeholder:'=COUNTIF(B2:B11,"الحاسب")',widget:'countif',
+ concept:()=>`<div class="grid2">
+  <article class="panel prose"><p class="eyebrow">التعريف</p><h3>ماذا تفعل COUNTIF؟</h3>
+   <p>تمرّ الدالة <b>COUNTIF</b> على مجموعة من الخلايا واحدة واحدة، وتعدّ <b>كل خلية تحقق الشرط</b>، ثم تعطيك العدد. الاسم نفسه يشرحها: COUNT تعني «عُدّ»، و IF تعني «إذا».</p>
+   <p class="analogy"><b>تشبيه:</b> معلم يمر بإصبعه على كشف الطلاب ويعدّ كل طالب من قسم الحاسب. الكشف هو <b>النطاق</b>، و«قسم الحاسب» هو <b>الشرط</b>.</p>
+   <div class="tblwrap"><table class="tt"><tr><th>شكل الشرط</th><th>ماذا يعدّ؟</th><th></th></tr>
+    <tr><td>${fx('"الحاسب"')}</td><td>الخلايا التي تساوي النص «الحاسب»</td><td>${tryBtn('=COUNTIF(B2:B11,"الحاسب")')}</td></tr>
+    <tr><td>${fx('90')}</td><td>الخلايا التي تساوي 90 بالضبط</td><td>${tryBtn('=COUNTIF(C2:C11,90)')}</td></tr>
+    <tr><td>${fx('">=90"')}</td><td>الخلايا التي قيمتها 90 فأكثر</td><td>${tryBtn('=COUNTIF(C2:C11,">=90")')}</td></tr>
+    <tr><td>${fx('"<>ناجح"')}</td><td>الخلايا التي لا تساوي «ناجح»</td><td>${tryBtn('=COUNTIF(D2:D11,"<>ناجح")')}</td></tr>
+    <tr><td>${fx('"م*"')}</td><td>النصوص التي تبدأ بحرف الميم؛ النجمة تعني «أي حروف»</td><td>${tryBtn('=COUNTIF(A2:A11,"م*")')}</td></tr>
+   </table></div></article>
+  <article class="panel"><p class="eyebrow">الصيغة والوسيطتان</p>
+   ${syntax('COUNTIF',[['range',1],['criteria',1]])}
+   ${argsList([{n:'range',req:1,d:'<b>نطاق الخلايا</b> الذي يبحث فيه إكسل، ويُكتب بأول خلية ثم نقطتين ثم آخر خلية، مثل B2:B11. اختر العمود الذي يحتوي على القيم التي تفحصها، وليس عمود الأسماء.'},
+    {n:'criteria',req:1,d:'<b>الشرط</b> الذي يجب أن تحققه الخلية لتُعدّ. يُكتب بين علامتي تنصيص إذا كان نصاً أو احتوى على علامة مقارنة، مثل "الحاسب" أو ">=90". الرقم وحده يُكتب بدونهما.'}])}
+   <p style="margin-top:12px"><b>اقرأها هكذا:</b> ${fx('=COUNTIF(B2:B11,"الحاسب")')} تعني «عُدّ في الخلايا من B2 إلى B11 كل خلية تساوي الحاسب».</p>
+  </article></div>`,
+ tasks:[
+  {id:'c1',title:'كم طالباً في قسم الحاسب؟',cell:'F2',need:['COUNTIF'],answer:5,
+   prompt:'اكتب في الخلية F2 صيغة تعدّ الطلاب الذين قسمهم «الحاسب».',
+   hints:['النطاق هو عمود القسم: B2:B11','الشرط نص، فاكتبه بين علامتي تنصيص: "الحاسب"'],solution:'=COUNTIF(B2:B11,"الحاسب")'},
+  {id:'c2',title:'كم درجة 90 فأكثر؟',cell:'F3',need:['COUNTIF'],answer:4,
+   prompt:'اكتب في F3 صيغة تعدّ الدرجات التي تساوي 90 أو تزيد عليها.',
+   hints:['النطاق هو عمود الدرجة: C2:C11','ضع علامة المقارنة مع الرقم بين علامتي تنصيص: ">=90"'],solution:'=COUNTIF(C2:C11,">=90")'},
+  {id:'c3',title:'كم طالباً راسباً؟',cell:'F4',need:['COUNTIF'],answer:3,
+   prompt:'اكتب في F4 صيغة تعدّ الطلاب الذين حالتهم «راسب».',
+   hints:['النطاق هو عمود الحالة D2:D11.'],solution:'=COUNTIF(D2:D11,"راسب")'},
+  {id:'c4',title:'من ليسوا من قسم الإدارة',cell:'F5',need:['COUNTIF'],answer:8,challenge:true,
+   prompt:'تحدٍّ: اكتب في F5 صيغة تعدّ الطلاب الذين قسمهم <b>ليس</b> «الإدارة».',
+   hints:['العلامة <> تعني «لا يساوي».','اكتب العلامة والنص معاً بين علامتي تنصيص: "<>الإدارة"'],solution:'=COUNTIF(B2:B11,"<>الإدارة")'}],
+ tips:['ضع الشرط بين علامتي تنصيص إذا احتوى على نص أو علامة مقارنة: "الحاسب" و ">=90". الرقم وحده لا يحتاجهما.',
+  'تأكد أن النطاق يغطي كل الصفوف: من B2 إلى B11 هنا. لو كتبت B2:B9 لسقط آخر طالبين من العدّ.',
+  'لا تفرّق COUNTIF بين الحروف الكبيرة والصغيرة في الإنجليزية، لكنها تفرّق بين «الحاسب» و«حاسب»، فاكتب النص كما هو في الجدول.',
+  'استعمل «مختبر العدّ» أعلاه لترى الخلايا التي تعدّها الدالة مظللة في الجدول قبل كتابة الصيغة.'],
+ quiz:[{q:'ما الوسيطة الأولى في الدالة COUNTIF؟',opts:['الشرط','نطاق الخلايا','عدد المنازل العشرية'],a:1,why:'نكتب أولاً أين نبحث (النطاق)، ثم عمّ نبحث (الشرط).'},
+  {q:'أي صيغة تعدّ الدرجات الأقل من 60؟',opts:['=COUNTIF(C2:C11,<60)','=COUNTIF(C2:C11,"<60")','=COUNTIF("<60",C2:C11)'],a:1,why:'علامة المقارنة تُكتب مع الرقم بين علامتي تنصيص، والنطاق يأتي أولاً.'}]}
+];
+
+/* ===================== state ===================== */
+const KEY='excel-lab-v1';
+let saved={done:{},quiz:{},formulas:{},free:{}};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)saved=Object.assign(saved,s);}catch(e){}
+const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(saved));}catch(e){}};
+let cur=ST[0];const selTask={};const results={};const marks={};const fails={};const hintN={};const showSol={};
+let hits=new Set();
+const rw={x:'87.456',d:1};const cw={col:1,crit:'الحاسب'};
+
+function stById(id){return ST.find(s=>s.id===id)||ST[0];}
+function cells(t){if(t.cell){const m=/([A-Z])(\d+)/.exec(t.cell);return[{c:colIndex(m[1]),r:+m[2]}];}
+  const out=[];for(let r=t.from;r<=t.to;r++)out.push({c:colIndex(t.col),r});return out;}
+const key=x=>colL(x.c)+x.r;
+function rowObj(st,r){const o={};st.grid[r-1].forEach((v,i)=>o[colL(i)]=v);return o;}
+
+function checkTask(st,t,formula,quiet){
+  let ast;try{ast=parse(formula);}catch(e){return{kind:'err',e};}
+  const cs=cells(t),forbid=new Set(cs.map(key)),R=results[st.id]||(results[st.id]={}),M=marks[st.id]||(marks[st.id]={});
+  cs.forEach(c=>{delete R[key(c)];delete M[key(c)];});
+  let good=0,firstErr=null;const base=cs[0].r;
+  for(const c of cs){let v;
+    try{v=evalAt(ast,{grid:st.grid,results:R,off:c.r-base,forbid});}catch(e){cs.forEach(c=>{delete R[key(c)];delete M[key(c)];});return{kind:'err',e};}
+    R[key(c)]=v;const exp=t.cell?t.answer:t.expect(rowObj(st,c.r));
+    const ok=same(v,exp);M[key(c)]=ok?'right':'wrong';if(ok)good++;if(isErr(v)&&!firstErr)firstErr=v;}
+  const missing=(t.need||[]).filter(f=>!usesFn(ast,f));
+  return{kind:'run',good,total:cs.length,missing,firstErr,value:R[key(cs[0])]};
+}
+
+/* ===================== rendering ===================== */
+const main=$('#main');
+function allItems(){let n=0;ST.forEach(s=>n+=s.tasks.length+s.quiz.length);return n;}
+function stDone(s){return s.tasks.every(t=>saved.done[t.id])&&s.quiz.every((q,i)=>saved.quiz[s.id+i]);}
+function updateProgress(){let d=0;ST.forEach(s=>{s.tasks.forEach(t=>saved.done[t.id]&&d++);s.quiz.forEach((q,i)=>saved.quiz[s.id+i]&&d++);});
+  const all=allItems();$('#pDone').textContent=d;$('#pAll').textContent=all;$('#pBar').style.width=(100*d/all)+'%';
+  document.querySelectorAll('.tab').forEach(b=>b.querySelector('.ok').classList.toggle('on',stDone(stById(b.dataset.id))));}
+function renderTabs(){$('#tabs').innerHTML=ST.map(s=>`<button class="tab" role="tab" data-id="${s.id}" aria-selected="${s===cur}"><span class="code">${s.code}</span><span class="nm">${s.tab}</span><span class="ok"></span></button>`).join('');
+  document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{location.hash=b.dataset.id;});}
+
+function renderStation(){
+  const s=cur;
+  if(!(s.id in selTask))selTask[s.id]=0;
+  results[s.id]={};marks[s.id]={};
+  s.tasks.forEach(t=>{if(saved.formulas[t.id])checkTask(s,t,saved.formulas[t.id],true);});
+  hits=new Set();
+  main.innerHTML=`
+   <section class="st-head"><p class="eyebrow">${s.eyebrow}</p><h2>${s.title}</h2><p>${s.lead}</p></section>
+   <section>${s.concept()}</section>
+   ${s.widget?`<section class="panel" id="widget"></section>`:''}
+   <section class="bench">
+     <div class="panel tasks"><h3>التمارين</h3><div class="tlist" id="tlist"></div><div class="tdetail" id="tdetail"></div></div>
+     <div class="panel sheetbox">
+       <div class="fwrap"><div class="fbar"><div class="namebox" id="namebox">E2</div><button class="fxl" id="fxBtn" title="إدراج دالة (Shift+F3)" aria-label="إدراج دالة">fx</button>
+         <input id="formula" type="text" autocomplete="off" spellcheck="false" aria-label="شريط الصيغة" placeholder="${esc(s.placeholder)}">
+         <button class="clr" id="clr" title="مسح الصيغة" aria-label="مسح الصيغة">×</button>
+         <button class="run" id="run">تنفيذ</button></div>
+         <div class="screentip" id="arghint" role="tooltip" hidden></div></div>
+       <div class="chips" id="chips">${['AND(','OR(','NOT(','ROUND(','COUNTIF(','IF('].map(c=>`<button class="fn" data-ins="${c}">${c}</button>`).join('')}${['"','>=','<=','<>','=',',',')',':'].map(c=>`<button data-ins="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+       <div class="sheetwrap"><table class="sheet" id="sheet"></table></div>
+       <p class="sheethelp">انقر على خلية لإضافة مرجعها إلى الصيغة، أو اسحب على عدة خلايا لإضافة نطاق. اضغط <b dir="ltr">fx</b> لفتح مربع «وسيطات الدالة» كما في إكسل.</p>
+       <div class="msg" id="msg" role="status" hidden></div>
+     </div>
+   </section>
+   <section class="grid2">
+     <article class="panel"><h3>توجيهات المعلم</h3><ul class="tips">${s.tips.map(t=>`<li><span>${esc(t).replace(/(=[A-Z]+\([^\s،]*\)|=[A-Z]\d[^\s،]*)/g,m=>fx(m.replace(/&quot;/g,'"').replace(/&gt;/g,'>').replace(/&lt;/g,'<').replace(/&amp;/g,'&')))}</span></li>`).join('')}</ul></article>
+     <article class="panel"><h3>اختبر فهمك</h3><div class="quiz" id="quiz"></div></article>
+   </section>`;
+  renderTasks();renderSheet();renderQuiz();if(s.widget)renderWidget();bindBench();loadFormula();updateProgress();
+  main.querySelectorAll('[data-try]').forEach(b=>b.onclick=()=>{selTask[s.id]=-1;renderTasks();renderSheet();const f=$('#formula');f.value=b.dataset.try;runFormula();f.scrollIntoView({block:'center',behavior:'smooth'});});
+}
+
+function renderTasks(){
+  const s=cur,sel=selTask[s.id];
+  $('#tlist').innerHTML=`<button class="titem free" aria-pressed="${sel===-1}" data-t="-1"><span class="n"></span><span class="tt2">تجربة حرة</span></button>`+
+   s.tasks.map((t,i)=>`<button class="titem ${saved.done[t.id]?'done':''}" aria-pressed="${sel===i}" data-t="${i}"><span class="n">${saved.done[t.id]?'✓':i+1}</span><span class="tt2">${t.title}</span>${t.challenge?'<span class="tag">تحدٍّ</span>':''}</button>`).join('');
+  $('#tlist').querySelectorAll('.titem').forEach(b=>b.onclick=()=>{selTask[s.id]=+b.dataset.t;renderTasks();renderSheet();loadFormula();hideMsg();});
+  const d=$('#tdetail');
+  if(sel===-1){d.innerHTML=`<p class="goal">اكتب أي صيغة تريدها على بيانات الجدول، ثم اضغط «تنفيذ» لترى نتيجتها. لا تُحفظ النتيجة في الجدول.</p><p class="where">مثال تبدأ به: ${fx(s.placeholder)}</p>`;$('#namebox').textContent='تجربة';return;}
+  const t=s.tasks[sel],cs=cells(t),tgt=t.cell||`${t.col}${t.from}`;
+  $('#namebox').textContent=tgt;
+  const hn=hintN[t.id]||0;
+  d.innerHTML=`<p class="goal">${t.prompt}</p>
+   <p class="where">${t.cell?`اكتب الصيغة للخلية ${t.cell}.`:`اكتب الصيغة للخلية ${tgt} فقط، وسينسخها المعمل إلى ${t.col}${t.from+1}:${t.col}${t.to}.`}${t.need.length?` الدالة المطلوبة: <b dir="ltr">${t.need.join(' + ')}</b>`:''}</p>
+   ${hn?`<ul class="hints">${t.hints.slice(0,hn).map(h=>`<li>${esc(h).replace(/(=?[A-Z]+\([^\s،]*\)|[A-Z]\d+(:[A-Z]\d+)?(&gt;=|&lt;&gt;|=|&gt;|&lt;)?[^\s،]*|&quot;[^&]*&quot;)/g,m=>fx(m.replace(/&quot;/g,'"').replace(/&gt;/g,'>').replace(/&lt;/g,'<')))}</li>`).join('')}</ul>`:''}
+   ${showSol[t.id]?`<p class="sol">الحل النموذجي: ${fx(t.solution)}</p>`:''}
+   <div class="btnrow"><button class="btn" id="hintBtn" ${hn>=t.hints.length?'disabled':''}>تلميح ${hn<t.hints.length?`(${hn+1} من ${t.hints.length})`:''}</button>
+   ${(fails[t.id]||0)>=1||saved.done[t.id]?`<button class="btn" id="solBtn">${showSol[t.id]?'إخفاء الحل':'عرض الحل'}</button>`:''}</div>`;
+  $('#hintBtn').onclick=()=>{hintN[t.id]=Math.min(t.hints.length,hn+1);renderTasks();};
+  const sb=$('#solBtn');if(sb)sb.onclick=()=>{showSol[t.id]=!showSol[t.id];renderTasks();};
+}
+
+function renderSheet(){
+  const s=cur,R=results[s.id]||{},M=marks[s.id]||{},sel=selTask[s.id],t=sel>=0?s.tasks[sel]:null;
+  const tg=new Set(t?cells(t).map(key):[]),first=t?key(cells(t)[0]):'';
+  const nc=Math.max(...s.grid.map(r=>r.length));
+  let h='<thead><tr><th class="rn"></th>'+Array.from({length:nc},(_,i)=>`<th>${colL(i)}</th>`).join('')+'</tr></thead><tbody>';
+  s.grid.forEach((row,ri)=>{const r=ri+1;h+=`<tr class="${r===1?'hdr':''}"><th class="rn">${r}</th>`;
+    for(let c=0;c<nc;c++){const k=colL(c)+r;let v=row[c],cls=[];
+      if(k in R){v=R[k];if(v===true)cls.push('vT');else if(v===false)cls.push('vF');else if(isErr(v))cls.push('vE');else if(typeof v==='number')cls.push('num');
+        if(M[k]&&(t&&tg.has(k)||!t))cls.push(M[k]);}
+      else if(typeof v==='number')cls.push('num');
+      if(r>1&&s.labelCol&&colL(c)===s.labelCol)cls.push('lbl');
+      if(tg.has(k)){cls.push('tgt');if(k===first)cls.push('first');}
+      if(hits.has(k))cls.push('hit');
+      const shown=k in R?fmt(v):(v===''?(tg.has(k)&&k===first?'؟':''):fmt(v));
+      h+=`<td data-ref="${k}" class="${cls.join(' ')}">${esc(shown)}</td>`;}
+    h+='</tr>';});
+  $('#sheet').innerHTML=h+'</tbody>';
+}
+
+function renderQuiz(){
+  const s=cur;$('#quiz').innerHTML=s.quiz.map((q,qi)=>{const solved=saved.quiz[s.id+qi];
+    return`<div class="q" data-q="${qi}"><p class="qt">${qi+1}. ${q.q.replace(/(=[A-Z]+\([^؟]*?\)|=[A-Z]\d+[^\s؟]*)(?=\s|؟|$)/g,m=>fx(m))}</p><div class="opts">${q.opts.map((o,oi)=>`<button class="opt ${solved&&oi===q.a?'good':''}" data-o="${oi}"><span class="lt">${'أبج'[oi]}</span><span>${/^=|^TRUE$|^FALSE$|^[\d.]+$/.test(o)?fx(o):esc(o)}</span></button>`).join('')}</div>${solved?`<p class="why">${esc(q.why)}</p>`:''}</div>`;}).join('');
+  $('#quiz').querySelectorAll('.q').forEach(div=>{const qi=+div.dataset.q,q=s.quiz[qi];
+    div.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const oi=+b.dataset.o;
+      div.querySelectorAll('.opt').forEach(x=>x.classList.remove('bad'));
+      let why=div.querySelector('.why');if(!why){why=document.createElement('p');why.className='why';div.appendChild(why);}
+      if(oi===q.a){b.classList.add('good');why.textContent='إجابة صحيحة. '+q.why;saved.quiz[s.id+qi]=true;persist();updateProgress();}
+      else{b.classList.add('bad');why.textContent='ليست هذه الإجابة. فكّر مرة أخرى واختر غيرها.';}});});
+}
+
+/* ===================== widgets ===================== */
+const PLACE={6:'ملايين',5:'مئات الآلاف',4:'عشرات الآلاف',3:'آلاف',2:'مئات',1:'عشرات',0:'آحاد','-1':'أعشار','-2':'أجزاء المئة','-3':'أجزاء الألف','-4':'1/10000','-5':'1/100000','-6':'1/1000000'};
+function renderWidget(){
+  const w=$('#widget');
+  if(cur.widget==='round'){
+    w.innerHTML=`<h3>مختبر التقريب</h3><p style="color:var(--muted);margin-bottom:14px">اكتب رقماً واختر عدد المنازل، وراقب كيف تقرّر ROUND النتيجة.</p>
+    <div class="widget"><div class="wctl">
+      <div class="field"><label for="rwNum">الرقم المراد تقريبه (number)</label><input class="inp" id="rwNum" dir="ltr" inputmode="decimal" value="${esc(rw.x)}"></div>
+      <div class="presets">${['87.456','3.14159','2.5','-2.5','1249.99','15.995'].map(p=>`<button class="pre" data-p="${p}">${p}</button>`).join('')}</div>
+      <div class="field"><label for="rwD">عدد المنازل العشرية (num_digits): <b id="rwDv" dir="ltr">${rw.d}</b></label>
+        <input class="slider" id="rwD" type="range" min="-3" max="4" step="1" value="${rw.d}" dir="ltr">
+        <div class="ticks">${[-3,-2,-1,0,1,2,3,4].map(x=>`<span>${x}</span>`).join('')}</div></div>
+    </div><div class="wout" id="rwOut"></div></div>`;
+    const upd=()=>{rw.x=$('#rwNum').value;rw.d=+$('#rwD').value;$('#rwDv').textContent=rw.d;drawRound();};
+    $('#rwNum').oninput=upd;$('#rwD').oninput=upd;
+    w.querySelectorAll('.pre').forEach(b=>b.onclick=()=>{$('#rwNum').value=b.dataset.p;upd();});
+    drawRound();
+  }else{
+    const s=cur;
+    w.innerHTML=`<h3>مختبر العدّ</h3><p style="color:var(--muted);margin-bottom:14px">اختر العمود واكتب الشرط، فتُظلَّل في الجدول أدناه كل خلية تعدّها COUNTIF.</p>
+    <div class="widget"><div class="wctl">
+      <div class="field"><label for="cwCol">النطاق (range): أي عمود؟</label><select class="inp" id="cwCol">${s.grid[0].slice(0,s.dataCols).map((h,i)=>`<option value="${i}" ${i===cw.col?'selected':''}>${colL(i)}: ${h}</option>`).join('')}</select></div>
+      <div class="field"><label for="cwCrit">الشرط (criteria)</label><input class="inp" id="cwCrit" dir="auto" value="${esc(cw.crit)}"></div>
+      <div class="presets">${['الحاسب','>=90','<60','راسب','<>ناجح','م*'].map(p=>`<button class="pre" data-p="${esc(p)}">${esc(p)}</button>`).join('')}</div>
+    </div><div class="wout" id="cwOut"></div></div>`;
+    const upd=()=>{cw.col=+$('#cwCol').value;cw.crit=$('#cwCrit').value;drawCount();};
+    $('#cwCol').onchange=upd;$('#cwCrit').oninput=upd;
+    w.querySelectorAll('.pre').forEach(b=>b.onclick=()=>{const p=b.dataset.p;$('#cwCrit').value=p;
+      if(/^[<>=]/.test(p)&&/\d/.test(p))$('#cwCol').value=2;else if(p==='م*')$('#cwCol').value=0;else if(/ناجح|راسب/.test(p))$('#cwCol').value=3;else $('#cwCol').value=1;upd();});
+    drawCount();
+  }
+}
+function drawRound(){
+  const o=$('#rwOut');const raw=normalize(rw.x.trim()).replace(/^\+/,'');const d=rw.d;
+  if(!/^-?(\d+\.?\d*|\.\d+)$/.test(raw)){o.innerHTML='<p class="msg warn">اكتب رقماً صحيحاً، مثل 87.456</p>';return;}
+  const neg=raw[0]==='-',body=neg?raw.slice(1):raw;let [ip,fp='']=body.split('.');ip=ip.replace(/^0+(?=\d)/,'')||'0';ip=ip.slice(-7);fp=fp.slice(0,6);
+  const digs=[];[...ip].forEach((ch,i)=>digs.push({ch,e:ip.length-1-i}));const fd=[...fp].map((ch,i)=>({ch,e:-(i+1)}));
+  const dec=-(d+1);let decider=[...digs,...fd].find(x=>x.e===dec);const dv=decider?+decider.ch:0;
+  const cls=e=>e>=-d?'keep':e===dec?'decide':'drop';
+  const box=x=>`<div class="dg ${cls(x.e)}"><span class="d">${x.ch}</span><span class="pl">${PLACE[x.e]||''}</span></div>`;
+  let strip=(neg?`<div class="dg dot"><span class="d">-</span><span class="pl"></span></div>`:'')+digs.map(box).join('');
+  if(fd.length)strip+=`<div class="dg dot"><span class="d">.</span><span class="pl"></span></div>`+fd.map(box).join('');
+  const val=Number(raw),res=roundX(val,d);
+  const what=d>0?`تُبقي ROUND ${d===1?'منزلة عشرية واحدة':d===2?'منزلتين عشريتين':d+' منازل عشرية'} بعد الفاصلة.`:d===0?'تقرّب ROUND الرقم إلى أقرب عدد صحيح، فلا يبقى شيء بعد الفاصلة.':`تقرّب ROUND الرقم إلى أقرب ${({'-1':'عشرة','-2':'مئة','-3':'ألف'})[d]}، أي إلى يسار الفاصلة.`;
+  let why;
+  if(!decider&&dec<0)why='لا توجد أرقام بعد المنزلة الأخيرة المطلوبة، فيبقى الرقم كما هو.';
+  else why=dv>=5?`الرقم المقرِّر هو <b>${dv}</b>، وهو 5 أو أكثر، فتزيد آخر منزلة باقية بمقدار 1 وتُحذف الأرقام بعدها.`:`الرقم المقرِّر هو <b>${dv}</b>، وهو أصغر من 5، فتبقى آخر منزلة كما هي وتُحذف الأرقام بعدها.`;
+  o.innerHTML=`<div class="digits">${strip}</div>
+   <div class="legend"><span class="lk">منازل تبقى</span><span class="ld">الرقم المقرِّر</span><span class="lx">تُحذف</span></div>
+   <p>${what} ${why}</p>
+   <div class="resline">${fx(`=ROUND(${raw}, ${d})`)}<span aria-hidden="true">←</span><output class="big">${fmtNum(res)}</output></div>`;
+}
+function drawCount(){
+  const s=cur,o=$('#cwOut');const L=colL(cw.col),last=s.grid.length;const raw=normalize(cw.crit);
+  const crit=raw.trim()!==''&&!isNaN(Number(raw))?Number(raw):raw;
+  const t=makeCrit(crit);hits=new Set();const names=[];
+  for(let r=2;r<=last;r++){const v=s.grid[r-1][cw.col];if(t(v===''?null:v)){hits.add(L+r);names.push(s.grid[r-1][0]);}}
+  const ftxt=`=COUNTIF(${L}2:${L}${last},${typeof crit==='number'?crit:'"'+raw+'"'})`;
+  o.innerHTML=`<div class="resline">${fx(ftxt)}<span aria-hidden="true">←</span><output class="big">${names.length}</output></div>
+   <p>تمرّ COUNTIF على الخلايا من ${L}2 إلى ${L}${last} (${esc(s.grid[0][cw.col])})، وتعدّ كل خلية تحقق الشرط ${fx(typeof crit==='number'?String(crit):'"'+raw+'"')}. وجدت <b>${names.length}</b> ${names.length===1?'خلية':'خلايا'}.</p>
+   ${names.length?`<div class="names">${names.map(n=>`<span>${esc(n)}</span>`).join('')}</div>`:''}
+   <div class="btnrow"><button class="btn" id="cwTry">انقل الصيغة إلى شريط الصيغة</button></div>`;
+  $('#cwTry').onclick=()=>{selTask[s.id]=-1;renderTasks();renderSheet();$('#formula').value=ftxt;runFormula();$('#formula').scrollIntoView({block:'center',behavior:'smooth'});};
+  if($('#sheet'))renderSheet();
+}
+
+/* ===================== bench behaviour ===================== */
+const SIG={AND:{p:['logical1','[logical2]','...'],ar:['الشرط الأول، مثل B2>=50','شرط إضافي اختياري','يمكنك إضافة شروط أخرى حتى 255 شرطاً']},
+ OR:{p:['logical1','[logical2]','...'],ar:['الشرط الأول','شرط بديل اختياري؛ يكفي تحقق أي شرط','يمكنك إضافة شروط أخرى حتى 255 شرطاً']},
+ NOT:{p:['logical'],ar:['الشرط الذي تريد عكس نتيجته، وسيطة واحدة فقط']},
+ ROUND:{p:['number','num_digits'],ar:['الرقم المراد تقريبه، أو مرجع خليته مثل B2','عدد المنازل العشرية: 1 لمنزلة واحدة، 0 لعدد صحيح، -2 لأقرب مئة']},
+ COUNTIF:{p:['range','criteria'],ar:['النطاق الذي يُبحث فيه، مثل B2:B11','الشرط بين علامتي تنصيص، مثل "الحاسب" أو ">=90"']},
+ IF:{p:['logical_test','[value_if_true]','[value_if_false]'],ar:['الشرط الذي يُختبر','القيمة إذا تحقق الشرط','القيمة إذا لم يتحقق']},
+ SUM:{p:['number1','[number2]','...'],ar:['رقم أو نطاق','أرقام أخرى اختيارية','']},AVERAGE:{p:['number1','[number2]','...'],ar:['رقم أو نطاق','أرقام أخرى اختيارية','']}};
+function fnContext(text){const st=[];let inS=false;
+  for(let i=0;i<text.length;i++){const c=text[i];if(inS){if(c==='"')inS=false;continue;}
+    if(c==='"'){inS=true;continue;}
+    if(c==='('){const m=/([A-Za-z]+)\s*$/.exec(text.slice(0,i));st.push({name:m?m[1].toUpperCase():null,arg:0,pos:m?i-m[0].length:i});}
+    else if(c===','||c===';'||c==='،'){if(st.length)st[st.length-1].arg++;}
+    else if(c===')')st.pop();}
+  for(let k=st.length-1;k>=0;k--)if(st[k].name&&SIG[st[k].name])return st[k];return null;}
+const STATION_OF={AND:'and',OR:'or',NOT:'not',ROUND:'round',COUNTIF:'countif'};
+const VAR={AND:'logical',OR:'logical',SUM:'number',AVERAGE:'number'};
+let mctx;
+function textW(el,s){mctx=mctx||document.createElement('canvas').getContext('2d');const cs=getComputedStyle(el);mctx.font=`${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;return mctx.measureText(s).width;}
+function updateHint(){const f=$('#formula'),h=$('#arghint');if(!f||!h)return;
+  const ctx=document.activeElement===f?fnContext(f.value.slice(0,f.selectionStart??f.value.length)):null;
+  if(!ctx){h.hidden=true;return;}
+  const sg=SIG[ctx.name],i=ctx.arg;let parts;
+  if(VAR[ctx.name]){const b=VAR[ctx.name],n=Math.max(2,i+2);parts=[];for(let j=1;j<=n;j++)parts.push(j===1?b+'1':`[${b}${j}]`);parts.push('...');}
+  else parts=sg.p;
+  const over=i>=parts.length;
+  const ar=over?`عدد الوسيطات أكثر مما تقبله الدالة ${ctx.name}.`:(VAR[ctx.name]?(i===0?sg.ar[0]:sg.ar[1]):sg.ar[i]);
+  const st=STATION_OF[ctx.name];
+  h.innerHTML=`<div class="sig">${st?`<a href="#${st}" class="fnm" title="افتح محطة هذه الدالة">${ctx.name}</a>`:`<span class="fnm">${ctx.name}</span>`}(${parts.map((p,j)=>j===i?`<b>${p}</b>`:p).join(', ')})</div><div class="ar" dir="rtl">${over?`<span style="color:var(--f)">${ar}</span>`:esc(ar||'')}</div>`;
+  h.hidden=false;
+  const cs=getComputedStyle(f);const x=f.offsetLeft+parseFloat(cs.paddingLeft)+textW(f,f.value.slice(0,ctx.pos))-f.scrollLeft;
+  const maxL=h.offsetParent?h.offsetParent.clientWidth-h.offsetWidth:0;h.style.left=Math.max(0,Math.min(x,maxL))+'px';}
+let caret=null;
+function insertAtCaret(txt){const f=$('#formula');const v=f.value;let s=caret?caret[0]:v.length,e=caret?caret[1]:v.length;
+  let pre=v.slice(0,s);if(!v.trim()){pre='=';s=e=0;}
+  f.value=pre+txt+v.slice(e);const p=(pre+txt).length;f.focus();f.setSelectionRange(p,p);caret=[p,p];updateHint();}
+function loadFormula(){const s=cur,sel=selTask[s.id],f=$('#formula');
+  f.value=sel===-1?(saved.free[s.id]||''):(saved.formulas[s.tasks[sel].id]||'');caret=null;updateHint();}
+function hideMsg(){$('#msg').hidden=true;}
+function showMsg(kind,html){const m=$('#msg');m.className='msg '+kind;m.innerHTML=html;m.hidden=false;}
+function runFormula(){
+  const s=cur,sel=selTask[s.id],f=$('#formula'),val=f.value;
+  if(sel===-1){saved.free[s.id]=val;persist();
+    try{const ast=parse(val);const v=evalAt(ast,{grid:s.grid,results:results[s.id],off:0});
+      if(isErr(v))showMsg('err',`النتيجة: <span class="rv">${v.code}</span>. ${esc(v.msg)}`);
+      else showMsg('ok',`النتيجة: <span class="rv">${esc(fmt(v))}</span>`);}
+    catch(e){showMsg('err',esc(e.msg||'تعذّر فهم الصيغة.'));}
+    return;}
+  const t=s.tasks[sel];saved.formulas[t.id]=val;
+  const r=checkTask(s,t,val);
+  if(r.kind==='err'){fails[t.id]=(fails[t.id]||0)+1;persist();renderSheet();showMsg('err',`<b>خطأ في كتابة الصيغة:</b> ${esc(r.e.msg||'تعذّر فهم الصيغة.')}`);renderTasks();return;}
+  renderSheet();
+  if(r.good===r.total&&!r.missing.length){saved.done[t.id]=true;persist();updateProgress();
+    showMsg('ok',t.cell?`<b>أحسنت!</b> النتيجة <span class="rv">${fmt(r.value)}</span> صحيحة.`:`<b>أحسنت!</b> الصيغة صحيحة في جميع الصفوف (${r.total} من ${r.total}).`+(nextTaskIdx()!==null?' انتقل إلى التمرين التالي.':''));
+    renderTasks();return;}
+  fails[t.id]=(fails[t.id]||0)+1;persist();
+  if(r.good===r.total)showMsg('warn',`النتائج صحيحة، لكن هذا التمرين يطلب استخدام الدالة <b dir="ltr">${r.missing.join(' و ')}</b>. أعد كتابة الصيغة باستخدامها.`);
+  else if(r.firstErr)showMsg('err',`ظهرت القيمة <span class="rv">${r.firstErr.code}</span>. ${esc(r.firstErr.msg)}`);
+  else if(t.cell)showMsg('warn',`النتيجة <span class="rv">${esc(fmt(r.value))}</span> ليست صحيحة. راجع النطاق: هل يغطي كل الصفوف؟ وراجع الشرط: هل يطابق ما في الجدول تماماً؟`);
+  else showMsg('warn',`صيغتك صحيحة في <b>${r.good}</b> ${r.good===1?'صف':'صفوف'} من <b>${r.total}</b>. الخلايا ذات الإطار الأحمر نتيجتها خاطئة؛ قارنها بالبيانات في الصف نفسه.`);
+  renderTasks();
+}
+function nextTaskIdx(){const s=cur;const i=s.tasks.findIndex(t=>!saved.done[t.id]);return i<0?null:i;}
+
+function bindBench(){
+  const f=$('#formula');
+  f.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();runFormula();}if(e.key==='Escape'){f.value='';updateHint();}if(e.key==='F3'&&e.shiftKey){e.preventDefault();openFx();}});
+  ['input','keyup','click','focus'].forEach(ev=>f.addEventListener(ev,()=>{caret=[f.selectionStart,f.selectionEnd];updateHint();}));
+  f.addEventListener('blur',()=>setTimeout(updateHint,150));
+  f.addEventListener('scroll',updateHint);
+  $('#fxBtn').addEventListener('pointerdown',e=>e.preventDefault());$('#fxBtn').onclick=openFx;
+  $('#run').onclick=runFormula;
+  $('#clr').onclick=()=>{f.value='';caret=null;f.focus();updateHint();hideMsg();};
+  $('#chips').querySelectorAll('button').forEach(b=>{b.addEventListener('pointerdown',e=>e.preventDefault());b.onclick=()=>insertAtCaret(b.dataset.ins);});
+  const sheet=$('#sheet');let start=null,end=null;
+  const tdAt=(x,y)=>document.elementFromPoint(x,y)?.closest('td[data-ref]');
+  const paint=()=>{sheet.querySelectorAll('td.pick').forEach(td=>td.classList.remove('pick'));if(!start)return;
+    const a=/([A-Z])(\d+)/.exec(start),b=/([A-Z])(\d+)/.exec(end||start);
+    const c1=Math.min(colIndex(a[1]),colIndex(b[1])),c2=Math.max(colIndex(a[1]),colIndex(b[1])),r1=Math.min(+a[2],+b[2]),r2=Math.max(+a[2],+b[2]);
+    for(let r=r1;r<=r2;r++)for(let c=c1;c<=c2;c++){const td=sheet.querySelector(`td[data-ref="${colL(c)+r}"]`);if(td)td.classList.add('pick');}};
+  sheet.addEventListener('pointerdown',e=>{const td=e.target.closest('td[data-ref]');if(!td)return;e.preventDefault();start=end=td.dataset.ref;paint();});
+  const move=e=>{if(!start)return;const td=tdAt(e.clientX,e.clientY);if(td&&sheet.contains(td)&&td.dataset.ref!==end){end=td.dataset.ref;paint();}};
+  const up=()=>{if(!start)return;const a=start,b=end||start;start=end=null;paint();
+    const ref=a===b?a:(()=>{const x=/([A-Z])(\d+)/.exec(a),y=/([A-Z])(\d+)/.exec(b);
+      const c1=Math.min(colIndex(x[1]),colIndex(y[1])),c2=Math.max(colIndex(x[1]),colIndex(y[1])),r1=Math.min(+x[2],+y[2]),r2=Math.max(+x[2],+y[2]);return colL(c1)+r1+':'+colL(c2)+r2;})();
+    insertRef(ref);};
+  document.onpointermove=move;document.onpointerup=up;
+}
+
+/* ===================== function arguments dialog ===================== */
+const DLG={
+ AND:{d:'يتحقق مما إذا كانت كل الوسيطات TRUE، ويُرجع TRUE إذا كانت كل الوسيطات TRUE.',args:[{n:'Logical',v:1,t:'منطقية',d:'هي من 1 إلى 255 شرطاً تريد اختبارها، ويمكن أن تكون TRUE أو FALSE، وقد تكون قيماً منطقية أو مراجع.',tip:'اكتب في كل مربع شرطاً كاملاً مثل B2>=50. يظهر مربع جديد كلما ملأت المربع الأخير.'}]},
+ OR:{d:'يتحقق مما إذا كانت أي من الوسيطات TRUE، ويُرجع TRUE أو FALSE. يُرجع FALSE فقط إذا كانت كل الوسيطات FALSE.',args:[{n:'Logical',v:1,t:'منطقية',d:'هي من 1 إلى 255 شرطاً تريد اختبارها، ويمكن أن تكون TRUE أو FALSE.',tip:'اكتب في كل مربع شرطاً بديلاً كاملاً، مثل D2="الرياض" ثم D2="جدة".'}]},
+ NOT:{d:'يغيّر FALSE إلى TRUE، أو TRUE إلى FALSE.',args:[{n:'Logical',req:1,t:'منطقية',d:'هي قيمة أو تعبير يمكن تقييمه إلى TRUE أو FALSE.',tip:'اكتب شرطاً واحداً فقط، مثل C2="مكتملة".'}]},
+ IF:{d:'التأكد من تحقق الشرط وإرجاع قيمة معينة عند TRUE وأخرى عند FALSE.',args:[
+  {n:'Logical_test',req:1,t:'منطقية',d:'هي أية قيمة أو تعبير يمكن تعيينه إلى TRUE أو FALSE.',tip:'مثال: AND(B2>=50,C2>=50)'},
+  {n:'Value_if_true',q:1,t:'بلا تحديد',d:'هي القيمة التي يتم إرجاعها إذا كان Logical_test هو TRUE. إذا تم حذفها، يتم إرجاع TRUE.',tip:'اكتب ناجح دون علامتي تنصيص، وستُضافان تلقائياً عند مغادرة المربع.'},
+  {n:'Value_if_false',q:1,t:'بلا تحديد',d:'هي القيمة التي يتم إرجاعها إذا كان Logical_test هو FALSE. إذا تم حذفها، يتم إرجاع FALSE.',tip:'اكتب راسب دون علامتي تنصيص، وستُضافان تلقائياً.'}]},
+ ROUND:{d:'تقريب رقم إلى عدد محدد من الخانات.',args:[
+  {n:'Number',req:1,t:'رقم',d:'هو الرقم الذي تريد تقريبه.',tip:'انقر على خلية الرقم في الجدول، مثل B2، بدلاً من كتابة الرقم يدوياً.'},
+  {n:'Num_digits',req:1,t:'رقم',d:'هو عدد الخانات التي تريد التقريب إليها. القيم السالبة تقرّب إلى يسار الفاصلة العشرية، والصفر يقرّب إلى أقرب عدد صحيح.',tip:'اكتب 1 لمنزلة واحدة، أو 0 لعدد صحيح، أو -2 لأقرب مئة.'}]},
+ COUNTIF:{d:'حساب عدد الخلايا ضمن نطاق تفي بالشرط المعطى.',args:[
+  {n:'Range',req:1,t:'مرجع',d:'هو نطاق الخلايا التي تريد حساب الخلايا منه.',tip:'اسحب على خلايا العمود في الجدول لتحديد النطاق، مثل B2:B11.'},
+  {n:'Criteria',req:1,q:1,t:'بلا تحديد',d:'هو الشرط على هيئة رقم أو تعبير أو نص يعرّف الخلايا التي سيتم حسابها.',tip:'اكتب الحاسب أو >=90 دون علامتي تنصيص، وسيضيفهما المعمل عند مغادرة المربع كما يفعل إكسل.'}]}
+};
+const dlg={mode:null,fn:'IF',vals:[],focus:0,replace:null,collapsed:false,sel:'AND'};
+const DL=document.getElementById('dlg');
+const ARW='<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2h10M7 12V5M4 8l3-3 3 3" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function dlgArgs(fn){const df=DLG[fn];if(!df.args[0].v)return df.args;
+  const a=df.args[0];let last=-1;dlg.vals.forEach((x,i)=>{if((x||'').trim())last=i;});const n=Math.min(255,Math.max(2,last+2));
+  return Array.from({length:n},(_,i)=>({...a,n:a.n+(i+1),req:i===0}));}
+function sigText(fn){const df=DLG[fn];if(df.args[0].v){const b=df.args[0].n.toLowerCase();return`${fn}(${b}1,${b}2,...)`;}return`${fn}(${df.args.map(a=>a.n.toLowerCase()).join(',')})`;}
+function setLink(fn){const st=STATION_OF[fn],a=$('#dlgLink');if(a){a.hidden=!st;a.onclick=e=>{e.preventDefault();if(st)location.hash=st;};}
+  $('#dlgHelp').onclick=()=>{if(st)location.hash=st;};}
+function showDlg(){DL.hidden=false;}
+function closeDlg(){DL.hidden=true;dlg.mode=null;dlg.collapsed=false;DL.classList.remove('collapsed');}
+function dlgFooter(){return`<div class="dlg-f"><a href="#" id="dlgLink">تعليمات حول هذه الدالة</a><div class="dbtns"><button class="dbtn primary" id="dlgOk">موافق</button><button class="dbtn" id="dlgCancel">إلغاء الأمر</button></div></div>`;}
+function openPick(){dlg.mode='pick';dlg.collapsed=false;DL.classList.remove('collapsed');$('#dlgTitle').textContent='إدراج دالة';
+  $('#dlgBody').innerHTML=`<p>اختر دالة من القائمة، ثم اضغط «موافق»:</p><div class="fnlist" role="listbox" id="fnlist">${Object.keys(DLG).map(f=>`<button class="fnit" role="option" data-fn="${f}">${f}</button>`).join('')}</div><p class="fsyn" id="fsyn"></p><p id="fdesc"></p>${dlgFooter()}`;
+  const sync=()=>{$('#fnlist').querySelectorAll('.fnit').forEach(b=>b.setAttribute('aria-selected',b.dataset.fn===dlg.sel));$('#fsyn').textContent=sigText(dlg.sel);$('#fdesc').textContent=DLG[dlg.sel].d;setLink(dlg.sel);};
+  $('#fnlist').querySelectorAll('.fnit').forEach(b=>{b.onclick=()=>{dlg.sel=b.dataset.fn;sync();};b.ondblclick=()=>openArgs(dlg.sel,[],null);});
+  $('#fnlist').addEventListener('keydown',e=>{const ks=Object.keys(DLG);let i=ks.indexOf(dlg.sel);
+    if(e.key==='ArrowDown'){i=Math.min(ks.length-1,i+1);}else if(e.key==='ArrowUp'){i=Math.max(0,i-1);}else if(e.key==='Enter'){e.preventDefault();openArgs(dlg.sel,[],null);return;}else return;
+    e.preventDefault();dlg.sel=ks[i];sync();$(`#fnlist [data-fn="${dlg.sel}"]`).focus();});
+  $('#dlgOk').onclick=()=>openArgs(dlg.sel,[],null);$('#dlgCancel').onclick=closeDlg;
+  showDlg();sync();$(`#fnlist [data-fn="${dlg.sel}"]`).focus();}
+function openArgs(fn,vals,replace){dlg.mode='args';dlg.fn=fn;dlg.sel=fn;dlg.vals=vals.slice();dlg.replace=replace;dlg.focus=0;dlg.collapsed=false;DL.classList.remove('collapsed');
+  $('#dlgTitle').textContent='وسيطات الدالة';
+  $('#dlgBody').innerHTML=`<fieldset class="dlg-box"><legend dir="ltr">${fn}</legend><div class="argrows" id="argrows"></div></fieldset>
+   <div class="dlg-res"><span class="eq">=</span><span class="v" id="dlgVal"></span></div>
+   <p>${esc(DLG[fn].d)}</p><div class="dlg-ad" id="dlgAd"></div><p class="dlg-tip" id="dlgTip" hidden></p>
+   <hr><p class="dlg-out">ناتج الصيغة = <span class="v" id="dlgOut"></span></p>${dlgFooter()}`;
+  setLink(fn);$('#dlgOk').onclick=dlgOk;$('#dlgCancel').onclick=closeDlg;showDlg();renderRows();
+  const e=dlg.vals.findIndex(v=>!(v||'').trim());focusArg(e<0?0:e);}
+function renderRows(){const args=dlgArgs(dlg.fn),box=$('#argrows');
+  box.innerHTML=args.map((a,i)=>`<div class="arow ${i===dlg.focus?'cur':''}" data-i="${i}"><label class="aname ${a.req?'req':''}" for="da${i}">${a.n}</label><div class="ainp"><button class="col" data-i="${i}" title="${dlg.collapsed?'توسيع مربع الحوار':'طي مربع الحوار لتحديد خلايا من الجدول'}" aria-label="تحديد خلايا">${ARW}</button><input id="da${i}" data-i="${i}" dir="ltr" autocomplete="off" spellcheck="false" value="${esc(dlg.vals[i]||'')}"></div><span class="eq">=</span><output class="aval" id="dv${i}"></output></div>`).join('');
+  box.querySelectorAll('input').forEach(inp=>{const i=+inp.dataset.i;
+    inp.addEventListener('focus',()=>setFocusArg(i));
+    inp.addEventListener('input',()=>onArgInput(i));
+    inp.addEventListener('blur',()=>autoQuote(i));
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(dlg.collapsed)toggleCollapse(i);else dlgOk();}});});
+  box.querySelectorAll('.col').forEach(b=>{b.addEventListener('pointerdown',e=>e.preventDefault());b.onclick=()=>toggleCollapse(+b.dataset.i);});
+  args.forEach((a,i)=>updPrev(i));updOverall();setFocusArg(dlg.focus);}
+function focusArg(i){const inp=$('#da'+i);if(inp){inp.focus();const p=inp.value.length;inp.setSelectionRange(p,p);}}
+function setFocusArg(i){dlg.focus=i;const args=dlgArgs(dlg.fn),a=args[i];if(!a)return;
+  document.querySelectorAll('#argrows .arow').forEach(r=>r.classList.toggle('cur',+r.dataset.i===i));
+  $('#dlgAd').innerHTML=`<b>${a.n}</b><span>${esc(a.d)}</span>`;const tp=$('#dlgTip');tp.hidden=!a.tip;tp.textContent=a.tip?'تلميح المعمل: '+a.tip:'';}
+function fmtOne(v){if(isErr(v))return v.code;if(v===null)return'0';if(typeof v==='string')return'"'+v+'"';return fmt(v);}
+function prevOf(text,a){const t=(text||'').trim();if(!t)return{ph:1,s:a.t};
+  try{const v=ev(parse('='+t),{grid:cur.grid,results:results[cur.id]||{},off:0});
+    if(v&&v.range){let s=v.range.map(r=>r.map(fmtOne).join(',')).join(';');if(s.length>60)s=s.slice(0,58)+'…';return{s:'{'+s+'}'};}
+    return{s:fmtOne(v)};}catch(e){return{s:''};}}
+function updPrev(i){const a=dlgArgs(dlg.fn)[i],o=$('#dv'+i);if(!a||!o)return;const p=prevOf(dlg.vals[i],a);o.textContent=p.s;o.classList.toggle('ph',!!p.ph);o.title=p.s;}
+function buildCall(){const args=dlgArgs(dlg.fn),vals=args.map((a,i)=>(dlg.vals[i]||'').trim());let k=vals.length;while(k>0&&!vals[k-1]&&!args[k-1].req)k--;return`${dlg.fn}(${vals.slice(0,k).join(',')})`;}
+function updOverall(){const args=dlgArgs(dlg.fn),miss=args.some((a,i)=>a.req&&!(dlg.vals[i]||'').trim());let s='';
+  if(!miss){try{s=fmt(evalAt(parse('='+buildCall()),{grid:cur.grid,results:results[cur.id]||{},off:0}));}catch(e){s='';}}
+  $('#dlgVal').textContent=s;$('#dlgOut').textContent=s;}
+function onArgInput(i){const inp=$('#da'+i);dlg.vals[i]=inp.value;
+  if(dlgArgs(dlg.fn).length!==document.querySelectorAll('#argrows .arow').length){const s=inp.selectionStart,e=inp.selectionEnd;renderRows();const n=$('#da'+i);n.focus();n.setSelectionRange(s,e);}
+  else{updPrev(i);updOverall();}}
+function autoQuote(i){const a=dlgArgs(dlg.fn)[i];if(!a||!a.q||dlg.mode!=='args')return;const t=(dlg.vals[i]||'').trim();if(!t||t[0]==='"')return;
+  try{parse('='+t);}catch(e){const inp=$('#da'+i);if(!inp)return;inp.value='"'+t.replace(/"/g,'""')+'"';onArgInput(i);}}
+function toggleCollapse(i){dlg.collapsed=!dlg.collapsed;dlg.focus=i;DL.classList.toggle('collapsed',dlg.collapsed);renderRows();focusArg(i);}
+function insertRef(ref){
+  if(!DL.hidden&&dlg.mode==='args'){const inp=$('#da'+dlg.focus);if(inp){const s=inp.selectionStart??inp.value.length,e=inp.selectionEnd??s;
+    inp.value=inp.value.slice(0,s)+ref+inp.value.slice(e);const p=s+ref.length;inp.focus();inp.setSelectionRange(p,p);onArgInput(dlg.focus);}return;}
+  insertAtCaret(ref);}
+function callSpan(text,pos){const o=text.indexOf('(',pos);const args=[];let cur2='',depth=0,inS=false,end=text.length;
+  for(let j=o+1;j<text.length;j++){const c=text[j];
+    if(inS){cur2+=c;if(c==='"')inS=false;continue;}
+    if(c==='"'){inS=true;cur2+=c;continue;}
+    if(c==='('){depth++;cur2+=c;continue;}
+    if(c===')'){if(depth===0){end=j+1;break;}depth--;cur2+=c;continue;}
+    if((c===','||c===';'||c==='،')&&depth===0){args.push(cur2.trim());cur2='';continue;}
+    cur2+=c;}
+  args.push(cur2.trim());if(args.length===1&&!args[0])args.length=0;return{args,end};}
+function openFx(){const f=$('#formula');if(!f)return;const pos=f.selectionStart??f.value.length;caret=[pos,f.selectionEnd??pos];
+  const ctx=fnContext(f.value.slice(0,pos));
+  if(ctx&&DLG[ctx.name]){const sp=callSpan(f.value,ctx.pos);openArgs(ctx.name,sp.args,{start:ctx.pos,end:sp.end});}
+  else openPick();}
+function dlgOk(){autoQuote(dlg.focus);const call=buildCall(),f=$('#formula');let v=f.value,p;
+  if(dlg.replace){v=v.slice(0,dlg.replace.start)+call+v.slice(dlg.replace.end);p=dlg.replace.start+call.length;}
+  else{const s=caret?caret[0]:v.length,e=caret?caret[1]:v.length;if(!v.trim()){v='='+call;p=v.length;}else{v=v.slice(0,s)+call+v.slice(e);p=s+call.length;}}
+  f.value=v;closeDlg();runFormula();f.focus();f.setSelectionRange(p,p);caret=[p,p];updateHint();}
+$('#dlgX').onclick=closeDlg;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!DL.hidden){e.preventDefault();closeDlg();$('#formula')?.focus();}});
+(()=>{const h=$('#dlgHead');let sx,sy,ox,oy,drag=false;
+  h.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;e.preventDefault();const r=DL.getBoundingClientRect();drag=true;sx=e.clientX;sy=e.clientY;ox=r.left;oy=r.top;h.setPointerCapture(e.pointerId);});
+  h.addEventListener('pointermove',e=>{if(!drag)return;DL.style.left=Math.max(0,Math.min(innerWidth-80,ox+e.clientX-sx))+'px';DL.style.top=Math.max(0,Math.min(innerHeight-40,oy+e.clientY-sy))+'px';DL.style.transform='none';});
+  h.addEventListener('pointerup',()=>{drag=false;});})();
+
+function route(){closeDlg();cur=stById((location.hash||'').slice(1));renderTabs();renderStation();window.scrollTo({top:0});}
+window.addEventListener('hashchange',route);
+route();
+</script>
+
+</body>
+
+</html>
